@@ -64,12 +64,11 @@ const HomePage: React.FC = () => {
           <img
             src={monitorImg}
             alt=""
-            className="absolute -top-10 -left-10 w-80 opacity-20 blur-sm select-none pointer-events-none hidden md:block"
+            className="absolute -top-30 -left-30 w-80 opacity-50 blur-sm select-none pointer-events-none hidden md:block"
             style={{ transform: 'rotate(-6deg)' }}
           />
           <div 
             className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-30 dark:opacity-20 pointer-events-none" 
-            style={{ backgroundSize: '40px 40px' }}
           />
           <div className="container relative z-10 mx-auto px-4 text-center">
             <motion.h1
@@ -191,15 +190,15 @@ const HomePage: React.FC = () => {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="hover:scale-[1.03] transition-transform duration-300"
+                  className="h-full hover:scale-[1.03] transition-transform duration-300"
                 >
-                  <Card className="glass-card hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-default">
-                    <CardContent className="p-8 text-center">
+                  <Card className="h-full glass-card hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-default">
+                    <CardContent className="p-8 text-center flex flex-col h-full">
                       <span className="inline-block text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-4 py-1 rounded-full mb-4">
                         {String(index + 1).padStart(2, '0')}
                       </span>
                       <h3 className="text-2xl font-bold mt-4">{step.title}</h3>
-                      <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
+                      <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed flex-grow">
                         {step.description}
                       </p>
                     </CardContent>
@@ -301,8 +300,8 @@ const steps = [
     description: 'Запустите генерацию SEO-текстов и поиск инфографики одним кликом.',
   },
   {
-    title: 'Примените и продавайте',
-    description: 'Используйте контент для улучшения карточки и повышения конверсии.',
+    title: 'Применяйте и продавайте',
+    description: 'Сгенерированный контент для улучшения карточки и повышения конверсии.',
   },
 ];
 
