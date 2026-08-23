@@ -92,3 +92,7 @@ export const updateStockHistory = async (
 ): Promise<void> => {
   await client.post(`/goods/${goodsId}/stock-history`, { entries });
 };
+
+export const reparseGoods = async (id: string): Promise<void> => {
+  await client.post(`/goods/${id}/reparse`);
+};

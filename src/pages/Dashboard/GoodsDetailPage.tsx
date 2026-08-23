@@ -7,6 +7,7 @@ import type { GoodsItem, SeoDataResponse, SeoHistoryResponse } from '@/api/types
 import { generateSeo, getSeoHistory } from '@/api/seo';
 import { generateInfographics, getInfographicsByGoodsId, enhanceInfographics } from '@/api/infographics';
 import { Alert, Button, Card, CardContent } from '@/components/ui';
+import { reparseGoods } from '@/api/goods';
 import {
   ArrowLeft,
   Package,
@@ -25,6 +26,7 @@ import {
   Hash,
   Tag,
   DollarSign,
+  RefreshCw,
 } from 'lucide-react';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
@@ -511,9 +513,21 @@ const GoodsDetailPage: React.FC = () => {
             {goodsItem.price ? `${goodsItem.price} ₽` : '—'}
           </p>
         </div>
-        <Button variant="secondary" onClick={() => navigate(`/goods/${goodsItem.id}/edit`)}>
-          <FileText size={18} className="mr-2" aria-hidden="true" />
-          Редактировать
+        <Button
+          variant="secondary"
+          onClick={async () => {
+            if (!goodsItem) return;
+            try {
+              await reparseGoods(goodsItem.id);
+              await loadGoods();
+              // Можно добавить уведомление об успехе
+            } catch (err) {
+              setError(getErrorMessage(err, 'Ошибка перепарсинга товара'));
+            }
+          }}
+        >
+          <RefreshCw size={18} className="mr-2" aria-hidden="true" />
+          Обновить данные
         </Button>
       </div>
 

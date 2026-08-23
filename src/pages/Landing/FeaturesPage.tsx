@@ -1,162 +1,145 @@
 // src/pages/Landing/FeaturesPage.tsx
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import {
-  ArrowRight,
-  FileText,
-  Image as ImageIcon,
-  BarChart3,
-  User,
-  Users,
-  Database,
-  Sparkles,
-  Search,
-  Zap,
-  Shield,
-  Clock,
-  Bot,
-  Globe,
-  Layout,
-  CheckCircle2,
-} from 'lucide-react';
-import { Badge, Button, Card, CardContent } from '@/components/ui';
+import { ArrowRight, CheckCircle, Zap, Sparkles, Image, FileText, BarChart3 } from 'lucide-react';
+import { Button, Card, CardContent } from '@/components/ui';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 
 const FeaturesPage: React.FC = () => {
+  const features = [
+    {
+      icon: FileText,
+      title: 'SEO-оптимизация',
+      description: 'Создаём заголовки, описания и ключевые слова, которые поднимают карточку в выдаче.',
+      color: 'from-blue-500 to-cyan-400',
+    },
+    {
+      icon: Image,
+      title: 'Инфографика',
+      description: 'Находим и генерируем релевантные изображения, которые привлекают внимание покупателей.',
+      color: 'from-purple-500 to-pink-400',
+    },
+    {
+      icon: BarChart3,
+      title: 'Аналитика и отчёты',
+      description: 'Отслеживайте эффективность оптимизации и получайте прогнозы по остаткам и динамике цены.',
+      color: 'from-green-500 to-teal-400',
+    },
+    {
+      icon: Zap,
+      title: 'Мгновенная генерация',
+      description: 'Нейросети работают в реальном времени – результат получайте за секунды.',
+      color: 'from-yellow-400 to-orange-400',
+    },
+    {
+      icon: Sparkles,
+      title: 'Интеллектуальные рекомендации',
+      description: 'Система подсказывает, как улучшить карточку на основе данных конкурентов и истории продаж.',
+      color: 'from-pink-500 to-rose-400',
+    },
+    {
+      icon: CheckCircle,
+      title: 'Простая интеграция',
+      description: 'Подключайте бота к вашему магазину в один клик – без сложных настроек.',
+      color: 'from-indigo-500 to-blue-400',
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-gray-900 overflow-x-hidden">
       <LandingHeader />
 
-      {/* ===== HERO SECTION ===== */}
-      <section className="py-16 md:py-24 border-b border-gray-100 dark:border-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <Badge className="mb-4">
-              <Sparkles size={16} aria-hidden="true" />
-              Все возможности Proskladai
-            </Badge>
-            <h1>
-              Инструменты для идеальной{' '}
-              <span className="text-blue-600 dark:text-blue-400">карточки товара</span>
-            </h1>
-            <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Узнайте, как наш сервис помогает продавцам маркетплейсов экономить время и увеличивать продажи
-              за счёт автоматизации SEO и визуального контента.
-            </p>
-          </div>
+      {/* Hero */}
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-white to-purple-50/40 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" />
+        <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent -mx-4 md:-mx-12"
+          >
+            Все возможности<br />
+            <span className="bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text">для продвижения</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            className="mt-6 text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+          >
+            Узнайте, как Proskladai помогает тысячам продавцов выводить товары в топ.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mt-10"
+          >
+            <Button asChild size="lg" className="shadow-lg shadow-blue-500/30">
+              <Link to="/register" className="flex items-center gap-2">
+                Начать бесплатно <ArrowRight size={20} />
+              </Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
 
-      {/* ===== MAIN FEATURES GRID ===== */}
-      <section className="py-16 md:py-24">
+      {/* Features Grid */}
+      <section className="py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-8">
-            {mainFeatures.map((feature, index) => (
-              <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded flex items-center justify-center text-blue-600 dark:text-blue-400">
-                      {feature.icon}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.06 }}
+              >
+                <Card className="h-full glass-card hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <CardContent className="p-8">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white shadow-lg`}>
+                      <feature.icon size={24} />
                     </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                        {feature.title}
-                      </h3>
-                      <p className="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
-                        {feature.description}
-                      </p>
-                      {feature.bullets && (
-                        <ul className="mt-3 space-y-1">
-                          {feature.bullets.map((bullet, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-                              <CheckCircle2 size={16} className="text-blue-500 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                              <span>{bullet}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    <h3 className="text-2xl font-bold mt-6">{feature.title}</h3>
+                    <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== TECHNICAL CAPABILITIES ===== */}
-      <section className="py-16 md:py-24 bg-gray-50 dark:bg-gray-800/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2>Технологии, стоящие за сервисом</h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-              Мы используем современные модели машинного обучения и надёжную архитектуру, чтобы обеспечить
-              точность и скорость работы.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {techFeatures.map((tech, index) => (
-              <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4">
-                    {tech.icon}
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{tech.title}</h3>
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{tech.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== BENEFITS SECTION ===== */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2>Почему выбирают Proskladai</h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-              Преимущества, которые делают наш сервис незаменимым для продавцов.
-            </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {benefits.map((benefit, index) => (
-              <Card key={index}>
-                <CardContent className="p-6 text-center">
-                  <div className="w-14 h-14 mx-auto bg-green-50 dark:bg-green-900/30 rounded flex items-center justify-center text-green-600 dark:text-green-400 mb-4">
-                    {benefit.icon}
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{benefit.title}</h4>
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{benefit.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== CTA SECTION ===== */}
-      <section className="py-16 md:py-24 border-t border-gray-100 dark:border-gray-800">
+      {/* CTA */}
+      <section className="py-20 md:py-28 border-t border-gray-100 dark:border-gray-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-2xl mx-auto">
-            <h2>Готовы попробовать все функции?</h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-              Зарегистрируйтесь и получите 3 товара бесплатно для полного тестирования.
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl mx-auto"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Готовы попробовать?
+            </h2>
+            <p className="mt-4 text-xl text-gray-600 dark:text-gray-300">
+              Присоединяйтесь к сообществу продавцов, которые уже используют AI для роста продаж.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Button asChild size="lg">
-                <Link to="/register">
-                  Создать аккаунт <ArrowRight size={20} className="ml-2" aria-hidden="true" />
+            <div className="mt-10">
+              <Button asChild size="lg" className="shadow-lg shadow-blue-500/30">
+                <Link to="/register" className="flex items-center gap-2">
+                  Создать аккаунт <ArrowRight size={20} />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
-                <a href="https://t.me/ProSklad_SmartSeller_AI_Bot" target="_blank" rel="noopener noreferrer">
-                  Открыть бота
-                </a>
-              </Button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -164,132 +147,5 @@ const FeaturesPage: React.FC = () => {
     </div>
   );
 };
-
-// === DATA ===
-
-const mainFeatures = [
-  {
-    icon: <FileText size={24} />,
-    title: 'Генерация SEO-оптимизации',
-    description:
-      'Нейросеть (DeepSeek / ChatGPT) создаёт заголовки, описания, ключевые слова и LSI-фразы, максимально релевантные вашему товару и поисковым запросам.',
-    bullets: [
-      'Анализ семантического ядра и интента запросов',
-      'Генерация до 5 вариантов текстов',
-      'Автоматическая вставка в карточку товара',
-    ],
-  },
-  {
-    icon: <ImageIcon size={24} />,
-    title: 'Поиск инфографики',
-    description:
-      'Автоматический сбор визуального контента из открытых источников по артикулу или названию товара. Возвращает от 1 до 20 изображений.',
-    bullets: [
-      'Поиск по товарным кодам и названиям',
-      'Сравнение метаданных с характеристиками товара',
-      'Поддержка публичных баз данных и каталогов',
-    ],
-  },
-  {
-    icon: <BarChart3 size={24} />,
-    title: 'Формирование отчётов',
-    description:
-      'Комплексные отчёты по результатам оптимизации: сгенерированные SEO-тексты, найденная инфографика, рекомендации и метрики.',
-    bullets: [
-      'Экспорт в PDF и Excel',
-      'История всех генераций',
-      'Сравнительный анализ эффективности',
-    ],
-  },
-  {
-    icon: <User size={24} />,
-    title: 'Управление профилем и товарами',
-    description:
-      'Личный кабинет для управления списком товаров, настройками, историей запросов и профилем пользователя.',
-    bullets: [
-      'Загрузка данных о карточках (вручную или парсинг)',
-      'Категоризация и тегирование товаров',
-      'Удобный поиск и фильтрация',
-    ],
-  },
-  {
-    icon: <Database size={24} />,
-    title: 'Парсинг и хранение данных',
-    description:
-      'Автоматический сбор информации о товарах с маркетплейсов и их хранение в структурированном виде.',
-    bullets: [
-      'Парсинг по артикулу или ссылке',
-      'Обновление данных в фоновом режиме',
-      'Безопасное хранение в PostgreSQL',
-    ],
-  },
-  {
-    icon: <Search size={24} />,
-    title: 'NLP-обработка текстов',
-    description:
-      'Классификация и кластеризация поисковых запросов, анализ семантической релевантности для повышения качества SEO.',
-    bullets: [
-      'Группировка ключевых слов по интенту',
-      'Подбор синонимов и LSI-фраз',
-      'Оптимизация текстов под поисковые системы',
-    ],
-  },
-];
-
-const techFeatures = [
-  {
-    icon: <Bot size={24} />,
-    title: 'AI-модели',
-    description: 'Используем DeepSeek и ChatGPT API для генерации высококачественных SEO-текстов.',
-  },
-  {
-    icon: <Zap size={24} />,
-    title: 'Асинхронная обработка',
-    description: 'Все запросы обрабатываются асинхронно, обеспечивая быстрый отклик (≤500 мс).',
-  },
-  {
-    icon: <Shield size={24} />,
-    title: 'Безопасность',
-    description: 'HTTPS/TLS, шифрование данных и JWT-аутентификация для защиты пользователей.',
-  },
-  {
-    icon: <Globe size={24} />,
-    title: 'Масштабируемость',
-    description: 'Поддерживаем до 1000 активных пользователей одновременно.',
-  },
-  {
-    icon: <Layout size={24} />,
-    title: 'Интеграция с Telegram',
-    description: 'Бот на aiogram 3.x и веб-интерфейс, разработанные для удобного взаимодействия.',
-  },
-  {
-    icon: <Clock size={24} />,
-    title: '24/7 доступность',
-    description: 'Uptime системы не менее 99.5% благодаря Docker и отказоустойчивой архитектуре.',
-  },
-];
-
-const benefits = [
-  {
-    icon: <Clock size={24} />,
-    title: 'Экономия времени',
-    description: 'Автоматизация рутинных задач по созданию контента для карточек.',
-  },
-  {
-    icon: <Zap size={24} />,
-    title: 'Повышение конверсии',
-    description: 'Качественные SEO-тексты и инфографика увеличивают продажи.',
-  },
-  {
-    icon: <Shield size={24} />,
-    title: 'Надёжность',
-    description: 'Безопасное хранение данных и стабильная работа 24/7.',
-  },
-  {
-    icon: <Users size={24} />,
-    title: 'Поддержка',
-    description: 'Наша команда всегда на связи для решения любых вопросов.',
-  },
-];
 
 export default FeaturesPage;

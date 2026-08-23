@@ -1,132 +1,197 @@
 // src/pages/Landing/HomePage.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
+import { ArrowRight, CheckCircle, Sparkles, Zap } from 'lucide-react';
 import { Button, Card, CardContent } from '@/components/ui';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 
 const HomePage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-gray-900 overflow-x-hidden">
       <LandingHeader />
 
       {/* ===== HERO ===== */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(ellipse_at_center,white,transparent)]" />
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50/30 via-white to-purple-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]" />
         <div className="container relative z-10 mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 animate-fade-in">
-            Оптимизируйте карточки товаров
-          </h1>
-          <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Генерация SEO-текстов и поиск инфографики с помощью нейросетей.
-          </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="animate-pulse-glow">
-              Начать бесплатно
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent -mx-4 md:-mx-12"
+          >
+            Оптимизируй<br />
+            <span className="bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text">карточки</span> товаров
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            className="mt-6 text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+          >
+            Генерация SEO-текстов и поиск инфографики с помощью нейросетей. Увеличь продажи без лишних затрат.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mt-10 flex flex-wrap justify-center gap-4"
+          >
+            <Button size="lg" className="shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-shadow">
+              <Link to="/register" className="flex items-center gap-2">
+                Начать бесплатно <ArrowRight size={20} />
+              </Link>
             </Button>
-            <Button variant="outline" size="lg">
-              Попробовать бота
+            <Button variant="outline" size="lg" className="border-2">
+              <a href="https://t.me/ProSklad_SmartSeller_AI_Bot" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                Попробовать бота <Zap size={18} />
+              </a>
             </Button>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* ===== FEATURES (нумерованный список) ===== */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mb-16">
-            <h2>Всё, что нужно для идеальной карточки товара</h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+      {/* ===== FEATURES ===== */}
+      <section className="py-24 md:py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/20 to-transparent dark:via-blue-900/10" />
+        <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl mb-20"
+          >
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Всё, что нужно для<br />идеальной карточки
+            </h2>
+            <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
               Нейросети и умные алгоритмы автоматизируют рутинные задачи, чтобы вы сосредоточились на развитии бизнеса.
             </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-x-8 gap-y-12">
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-x-12 gap-y-16">
             {features.map((feature, index) => (
-              <div
+              <motion.div
                 key={feature.title}
-                className="border-t border-gray-200 dark:border-gray-700 pt-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="border-t border-gray-200 dark:border-gray-700 pt-6 group"
               >
-                <span className="text-sm font-medium text-gray-500">
+                <span className="text-sm font-medium text-gray-400 group-hover:text-blue-500 transition-colors">
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <h3 className="text-xl mt-2">{feature.title}</h3>
-                <p className="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
+                <h3 className="text-2xl mt-3 font-bold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
                   {feature.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== HOW IT WORKS (стеклянные карточки) ===== */}
-      <section className="py-16 md:py-24 border-t border-gray-100 dark:border-gray-800">
+      {/* ===== HOW IT WORKS ===== */}
+      <section className="py-24 md:py-32 border-t border-gray-100 dark:border-gray-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mb-16">
-            <h2>Как это работает</h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-              Три простых шага до готовой оптимизированной карточки
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl mb-16"
+          >
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Как это работает
+            </h2>
+            <p className="mt-4 text-xl text-gray-600 dark:text-gray-300">
+              Три шага до готовой оптимизированной карточки
             </p>
-          </div>
+          </motion.div>
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((step, index) => (
-              <Card
+              <motion.div
                 key={step.title}
-                className="glass-card hover:shadow-apple-hover dark:hover:shadow-apple-dark transition-all duration-300"
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <CardContent className="p-6 text-center">
-                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <h3 className="text-xl mt-3 font-semibold">{step.title}</h3>
-                  <p className="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {step.description}
-                  </p>
-                </CardContent>
-              </Card>
+                <Card className="glass-card hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <CardContent className="p-8 text-center">
+                    <span className="inline-block text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-4 py-1 rounded-full mb-4">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <h3 className="text-2xl font-bold mt-4">{step.title}</h3>
+                    <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {step.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== STATS / TRUST ===== */}
+      {/* ===== STATS ===== */}
       <section className="py-16 border-t border-gray-100 dark:border-gray-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <div className="text-4xl font-semibold text-gray-900 dark:text-white">
+            {stats.map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+              >
+                <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   {stat.value}
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{stat.label}</div>
-              </div>
+                <div className="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {stat.label}
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ===== CTA ===== */}
-      <section className="py-16 md:py-24 border-t border-gray-100 dark:border-gray-800">
+      <section className="py-24 md:py-32 border-t border-gray-100 dark:border-gray-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-2xl mx-auto">
-            <h2>Готовы оптимизировать свои товары?</h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl mx-auto"
+          >
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Готовы оптимизировать товары?
+            </h2>
+            <p className="mt-6 text-xl text-gray-600 dark:text-gray-300">
               Начните прямо сейчас – первые 3 товара бесплатно!
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Button asChild size="lg">
-                <Link to="/register">
-                  Создать аккаунт <ArrowRight size={20} className="ml-2" />
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
+              <Button asChild size="lg" className="shadow-lg shadow-blue-500/30">
+                <Link to="/register" className="flex items-center gap-2">
+                  Создать аккаунт <ArrowRight size={20} />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
-                <a href="https://t.me/ProSklad_SmartSeller_AI_Bot" target="_blank" rel="noopener noreferrer">
-                  Открыть бота
+              <Button asChild variant="outline" size="lg" className="border-2">
+                <a href="https://t.me/ProSklad_SmartSeller_AI_Bot" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  Открыть бота <Sparkles size={18} />
                 </a>
               </Button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -156,15 +221,15 @@ const features = [
 
 const steps = [
   {
-    title: 'Загрузите карточку',
+    title: 'Загружайте карточки',
     description: 'Добавьте товар по артикулу или вручную – бот автоматически подтянет данные.',
   },
   {
-    title: 'Сгенерируйте контент',
+    title: 'Генерируйте контент',
     description: 'Запустите генерацию SEO-текстов и поиск инфографики одним кликом.',
   },
   {
-    title: 'Примените и продавайте',
+    title: 'Применяйте и продавайте',
     description: 'Используйте готовый контент для улучшения карточки и повышения конверсии.',
   },
 ];

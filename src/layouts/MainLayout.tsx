@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -141,7 +141,6 @@ const MainLayout: React.FC = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-11 w-11 rounded-full p-0 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all">
                   <Avatar className="h-10 w-10 ring-2 ring-blue-500/20 shadow-apple dark:shadow-apple-dark">
-                    <AvatarImage src={undefined} alt={user?.username || 'User'} />
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-medium">
                       {user?.username?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
