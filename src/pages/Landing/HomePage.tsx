@@ -23,8 +23,7 @@ const HomePage: React.FC = () => {
   }, []);
 
   return (
-    //<div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/30">
-      <div className="min-h-screen bg-white dark:bg-gray-900 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/30 overflow-x-hidden">
         {/* ===== Плавающий хедер ===== */}
         <motion.header
           initial={{ opacity: 0, y: -20 }}
@@ -65,23 +64,13 @@ const HomePage: React.FC = () => {
           <img
             src={monitorImg}
             alt=""
-            className="absolute -top-20 -left-20 w-96 opacity-20 blur-sm select-none pointer-events-none hidden md:block"
-            style={{ transform: 'rotate(-8deg)' }}
+            className="absolute -top-10 -left-10 w-80 opacity-20 blur-sm select-none pointer-events-none hidden md:block"
+            style={{ transform: 'rotate(-6deg)' }}
           />
-          {/* Декорация 2: кисть (справа снизу) */}
-          <img
-            src={brushImg}
-            alt=""
-            className="absolute -bottom-16 -right-16 w-72 opacity-25 blur-sm select-none pointer-events-none hidden md:block"
-            style={{ transform: 'rotate(12deg)' }}
+          <div 
+            className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-30 dark:opacity-20 pointer-events-none" 
+            style={{ backgroundSize: '40px 40px' }}
           />
-          {/* Декорация 3: клавиатура (центр, но под контентом) */}
-          <img
-            src={keyboardImg}
-            alt=""
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] opacity-10 blur-md select-none pointer-events-none hidden md:block"
-          />
-          <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]" />
           <div className="container relative z-10 mx-auto px-4 text-center">
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -122,6 +111,20 @@ const HomePage: React.FC = () => {
 
         {/* ===== FEATURES ===== */}
         <section className="py-24 md:py-32 relative overflow-hidden">
+          {/* Кисть – слева от текста */}
+            <img
+              src={brushImg}
+              alt=""
+              className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-56 opacity-20 blur-sm select-none pointer-events-none hidden lg:block"
+              style={{ transform: 'rotate(10deg)' }}
+            />
+            {/* Клавиатура – справа от текста */}
+            <img
+              src={keyboardImg}
+              alt=""
+              className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-64 opacity-20 blur-sm select-none pointer-events-none hidden lg:block"
+              style={{ transform: 'rotate(-5deg)' }}
+            />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/20 to-transparent dark:via-blue-900/10" />
           <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -265,8 +268,7 @@ const HomePage: React.FC = () => {
         </section>
 
         <LandingFooter />
-      </div>
-    //</div>
+    </div>
   );
 };
 
