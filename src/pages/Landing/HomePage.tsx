@@ -5,9 +5,9 @@ import { motion, useInView } from 'framer-motion';
 import { ArrowRight, CheckCircle, Sparkles, Zap } from 'lucide-react';
 import { Button, Card, CardContent } from '@/components/ui';
 import LandingFooter from '@/components/landing/LandingFooter';
-import monitorImg from '/images/monitor.png';
-import brushImg from '/images/brush.png';
-import keyboardImg from '/images/keyboard.png';
+const monitorImg = '/images/monitor.png';
+const brushImg = '/images/brush.png';
+const keyboardImg = '/images/keyboard.png';
 
 const HomePage: React.FC = () => {
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
@@ -53,7 +53,7 @@ const HomePage: React.FC = () => {
               <Link to="/login" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Войти
               </Link>
-              <Button asChild size="sm" className="shadow-md shadow-blue-500/20 hover:shadow-blue-500/40 transition-shadow">
+              <Button asChild size="sm" className="text-white shadow-md shadow-blue-500/20 hover:shadow-blue-500/40 transition-shadow">
                 <Link to="/register">Начать бесплатно</Link>
               </Button>
             </div>
@@ -77,7 +77,7 @@ const HomePage: React.FC = () => {
           />
           {/* Декорация 3: клавиатура (центр, но под контентом) */}
           <img
-            src="keyboardmonitorImg"
+            src="keyboardImg"
             alt=""
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] opacity-10 blur-md select-none pointer-events-none hidden md:block"
           />
@@ -107,7 +107,7 @@ const HomePage: React.FC = () => {
               className="mt-10 flex flex-wrap justify-center gap-4"
             >
               <Button size="lg" className="shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-shadow">
-                <Link to="/register" className="flex items-center gap-2">
+                <Link to="/register" className="text-white flex items-center gap-2">
                   Начать бесплатно <ArrowRight size={20} />
                 </Link>
               </Button>
@@ -151,7 +151,7 @@ const HomePage: React.FC = () => {
                   <span className="text-sm font-medium text-gray-400 group-hover:text-blue-500 transition-colors">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <h3 className="text-2xl mt-3 font-bold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-2xl mt-3 font-bold transition-colors">
                     {feature.title}
                   </h3>
                   <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -250,7 +250,7 @@ const HomePage: React.FC = () => {
               </p>
               <div className="mt-10 flex flex-wrap justify-center gap-4">
                 <Button asChild size="lg" className="shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-shadow">
-                  <Link to="/register" className="flex items-center gap-2">
+                  <Link to="/register" className="text-white flex items-center gap-2">
                     Создать аккаунт <ArrowRight size={20} />
                   </Link>
                 </Button>
@@ -300,7 +300,7 @@ const steps = [
   },
   {
     title: 'Примените и продавайте',
-    description: 'Используйте готовый контент для улучшения карточки и повышения конверсии.',
+    description: 'Используйте контент для улучшения карточки и повышения конверсии.',
   },
 ];
 
