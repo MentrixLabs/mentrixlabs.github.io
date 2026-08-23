@@ -14,7 +14,7 @@ const TOKEN_KEY = 'access_token';
 // Создаём экземпляр Axios
 const client: AxiosInstance = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000, // 10 секунд
+  timeout: 5*60000, // 5 минут
   headers: {
     'Content-Type': 'application/json',
   },

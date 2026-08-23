@@ -271,7 +271,7 @@ const plans = [
     price: 'Бесплатно',
     popular: false,
     ctaText: 'Начать',
-    ctaLink: '/register',
+    ctaLink: '/register?plan=free',
     features: [
       { text: 'До 3 товаров', included: true },
       { text: 'Генерация SEO (базовая)', included: true },
@@ -285,10 +285,10 @@ const plans = [
   {
     name: 'Старт',
     description: 'Для небольших магазинов',
-    price: '990 ₽',
+    price: '12 990 ₽',
     popular: true,
     ctaText: 'Выбрать',
-    ctaLink: '/register',
+    ctaLink: '/register?plan=starter',
     features: [
       { text: 'До 100 товаров', included: true },
       { text: 'Генерация SEO (расширенная)', included: true },
@@ -302,10 +302,10 @@ const plans = [
   {
     name: 'Бизнес',
     description: 'Для профессиональных продавцов',
-    price: '2 990 ₽',
+    price: '52 990 ₽',
     popular: false,
     ctaText: 'Выбрать',
-    ctaLink: '/register',
+    ctaLink: '/register?plan=business',
     features: [
       { text: 'Неограниченно товаров', included: true },
       { text: 'Генерация SEO (премиум)', included: true },

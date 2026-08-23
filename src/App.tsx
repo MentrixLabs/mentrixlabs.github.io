@@ -16,6 +16,9 @@ import PricingPage from '@/pages/Landing/PricingPage';
 import LoginPage from '@/pages/Auth/LoginPage';        // предположим, что они существуют
 import RegisterPage from '@/pages/Auth/RegisterPage';  // предположим, что они существуют
 
+import PersonalDataConsentPage from '@/pages/Documents/PersonalDataConsentPage';
+import TermsOfUsePage from '@/pages/Documents/TermsOfUsePage';
+
 // Страницы Dashboard (приватные, используют MainLayout)
 import DashboardPage from '@/pages/Dashboard/DashboardPage';
 import GoodsListPage from '@/pages/Dashboard/GoodsListPage';
@@ -113,6 +116,8 @@ const App: React.FC = () => {
         {/* Публичные страницы (лендинг) – без макета (они сами содержат header/footer) */}
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/personal-data-consent" element={<PersonalDataConsentPage />} />
+        <Route path="/terms-of-use" element={<TermsOfUsePage />} />
 
         {/* Страницы аутентификации – с макетом AuthLayout */}
         <Route element={<AuthLayout />}>
