@@ -85,6 +85,8 @@ export interface InfographicsSearchResponse {
 }
 
 // Данные отчёта
+// src/api/types.ts
+
 export interface Report {
   id: number;
   goods_id: number;
@@ -94,23 +96,21 @@ export interface Report {
   forecast_data?: {
     days_to_out_of_stock?: string;
     price_dynamic?: string;
+    forecast?: Array<{ date: string; price: number; demand: number; stock: number; }>;
     recommended_price?: number;
+    revenue_forecast?: Array<{ date: string; revenue: number; }>;
     key_metrics?: {
-      avg_price?: number;
-      max_price?: number;
-      min_price?: number;
-      volatility?: number;
+      avg_price: number;
+      max_price: number;
+      min_price: number;
+      volatility: number;
     };
-    forecast?: Array<{
-      date: string;
-      price: number;
-      demand: number;
-      stock: number;
-    }>;
-    revenue_forecast?: Array<{
-      date: string;
-      revenue: number;
-    }>;
+    advertising_spend_ratio_forecast?: Array<{ date: string; value: number[]; }>;
+    leads_forecast?: Array<{ date: string; value: number[]; }>;
+    ctr_forecast?: Array<{ date: string; value: number[]; }>;
+    advertising_spend_ratio_description?: string;
+    leads_description?: string;
+    ctr_description?: string;
     keywords?: string[];
     recommendations?: string;
   };

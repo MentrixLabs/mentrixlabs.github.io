@@ -44,7 +44,7 @@ const ReportsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const goodsIdFromUrl = searchParams.get('goods_id');
 
-  const { goods, loading: goodsLoading, error: goodsLoadError } = useGoods(1, 100);
+  const { goods, loading: goodsLoading, error: goodsLoadError, fetchGoods } = useGoods(1, 100);
 
   const [selectedGoodsId, setSelectedGoodsId] = useState<string>(goodsIdFromUrl || '');
 
@@ -66,6 +66,10 @@ const ReportsPage: React.FC = () => {
   // --- Состояние для ввода остатков ---
   const [stockInput, setStockInput] = useState<string>('');
   const [stockError, setStockError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchGoods(1, 100);
+  }, []);
 
   const loadReports = useCallback(async () => {
     setLoading(true);
