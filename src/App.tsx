@@ -66,11 +66,32 @@ const RootRoute: React.FC = () => {
 
 const App: React.FC = () => {
   const { loadUser, isLoading } = useAuthStore();
-
   // Загружаем пользователя при старте приложения
   useEffect(() => {
     loadUser();
   }, [loadUser]);
+
+  // ✅ Звук нажатия на кнопки (перенесён в useEffect)
+  useEffect(() => {
+    const audio = new Audio('/sounds/buttonsound.mp3');
+    audio.load();
+
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const button = target.closest('button') || 
+                     (target.getAttribute('role') === 'button' && target) || 
+                     target.closest('[role="button"]');
+      if (button) {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener('click', handleClick);
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []); // Пустой массив зависимостей – эффект выполняется один раз
 
   // Если ещё загружается пользователь, показываем спиннер (глобально)
   if (isLoading) {

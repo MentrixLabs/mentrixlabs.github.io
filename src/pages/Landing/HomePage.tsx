@@ -1,7 +1,7 @@
 // src/pages/Landing/HomePage.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { ArrowRight, CheckCircle, Sparkles, Zap } from 'lucide-react';
 import { Button, Card, CardContent } from '@/components/ui';
 import LandingFooter from '@/components/landing/LandingFooter';
@@ -22,251 +22,385 @@ const HomePage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/30 overflow-x-hidden">
-        {/* ===== Плавающий хедер ===== */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: isHeaderVisible ? 1 : 0, y: isHeaderVisible ? 0 : -20 }}
-          transition={{ duration: 0.4 }}
-          className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all"
-        >
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white font-semibold text-lg shadow-md">
-                P
-              </div>
-              <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Proskladai
-              </span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-300">
-              <Link to="/features" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Возможности
-              </Link>
-              <Link to="/pricing" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Цены
-              </Link>
-            </nav>
-            <div className="flex items-center gap-4">
-              <Link to="/login" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Войти
-              </Link>
-              <Button asChild size="sm" className="text-white shadow-md shadow-blue-500/20 hover:text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 transition-shadow">
-                <Link to="/register">Начать бесплатно</Link>
-              </Button>
-            </div>
-          </div>
-        </motion.header>
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
 
-        {/* ===== HERO ===== */}
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50/30 via-white to-purple-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          <img
-            src={monitorImg}
-            alt=""
-            className="absolute -top-30 -left-30 w-80 opacity-50 blur-sm select-none pointer-events-none hidden md:block"
-            style={{ transform: 'rotate(-6deg)' }}
-          />
-          <div 
-            className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-30 dark:opacity-20 pointer-events-none" 
-          />
-          <div className="container relative z-10 mx-auto px-4 text-center">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent -mx-4 md:-mx-12 drop-shadow-lg"
+  // Смещение для кисти и кривой (от -60px до 60px по X, от -40px до 40px по Y)
+  const moveX = useTransform(mouseX, [-1, 1], [-200, 200]);
+  const moveY = useTransform(mouseY, [-1, 1], [-200, 200]);
+
+  // Сглаженное движение для подсветки (более тягучее)
+  const glowSpringX = useSpring(moveX, { stiffness: 90, damping: 60 });
+  const glowSpringY = useSpring(moveY, { stiffness: 90, damping: 60 });
+  const curveSpringX = useSpring(moveX, { stiffness: 1000, damping: 50 });
+  const curveSpringY = useSpring(moveY, { stiffness: 1000, damping: 50 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    // Нормализуем от -1 до 1
+    const normX = Math.max(-1, Math.min(1, x / (rect.width / 2)));
+    const normY = Math.max(-1, Math.min(1, y / (rect.height / 2)));
+    mouseX.set(normX);
+    mouseY.set(normY);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/30">
+      {/* ===== Плавающий хедер ===== */}
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: isHeaderVisible ? 1 : 0, y: isHeaderVisible ? 0 : -20 }}
+        transition={{ duration: 0.4 }}
+        className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all"
+      >
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white font-semibold text-lg shadow-md">
+              P
+            </div>
+            <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Proskladai
+            </span>
+          </Link>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Link to="/features" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Возможности
+            </Link>
+            <Link to="/pricing" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Цены
+            </Link>
+          </nav>
+          <div className="flex items-center gap-4">
+            <Link to="/login" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              Войти
+            </Link>
+            <Button asChild size="sm" className="hover:text-white text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-md shadow-blue-500/20 transition-all duration-300 hover:from-blue-500 hover:to-purple-500 hover:scale-105 hover:shadow-lg hover:shadow-purple-300/5 active:scale-98">
+              <Link to="/register" className="hover:text-white">Начать бесплатно</Link>
+            </Button>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* ===== HERO ===== */}
+      <section className="relative min-h-[90vh] flex items-center justify-center">       
+        <div className="container relative z-10 mx-auto px-4 text-center">
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent -mx-4 md:-mx-12 drop-shadow-lg"
+          >
+            Оптимизируй<br />
+            <span className="bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text">карточки</span> товаров
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            className="mt-6 text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+          >
+            Генерация SEO-текстов и поиск инфографики с помощью нейросетей. Увеличь продажи без лишних затрат.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mt-10 flex flex-wrap justify-center gap-4"
+          >
+            <Button size="lg" className="hover:text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg shadow-blue-500/30 transition-all duration-100 hover:from-blue-500 hover:to-purple-500 hover:scale-105 hover:shadow-s hover:shadow-purple-300/5 active:scale-98">
+              <Link to="/register" className="text-white flex items-center gap-2 hover:text-white">
+                Начать бесплатно <ArrowRight size={20} className="transition-transform duration-100 group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-2 border-gray-200 dark:border-gray-700 bg-transparent text-gray-700 dark:text-gray-200 transition-all duration-300 ease-out hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 active:scale-98 group"
             >
-              Оптимизируй<br />
-              <span className="bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text">карточки</span> товаров
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.15 }}
-              className="mt-6 text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
-            >
-              Генерация SEO-текстов и поиск инфографики с помощью нейросетей. Увеличь продажи без лишних затрат.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="mt-10 flex flex-wrap justify-center gap-4"
-            >
-              <Button size="lg" className="shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-shadow">
-                <Link to="/register" className="text-white flex items-center gap-2">
-                  Начать бесплатно <ArrowRight size={20} />
+              <a 
+                href="https://t.me/ProSklad_SmartSeller_AI_Bot" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-2 hover:text-inherit"
+              >
+                Попробовать бота 
+                <Zap size={18} className="transition-transform duration-300 ease-out group-hover:scale-125 group-hover:rotate-12 text-amber-500" />
+              </a>
+            </Button>
+          </motion.div>
+        </div>
+      </section>    
+        
+
+      {/* ===== FEATURES ===== */}
+      <section onMouseMove={handleMouseMove} className="py-24 md:py-32 relative cursor-none">
+        {/* Фоновое размытое свечение (уже есть) */}
+        
+
+        {/* КОНТЕЙНЕР для кисти и ленты – максимально увеличен */}
+<div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-[700px] h-[700px] pointer-events-none hidden lg:block">
+  <motion.div
+      initial={{ opacity: 0, scale: 0.6 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-100px" }}
+      animate={{ filter: ["hue-rotate(0deg) blur(90px)", "hue-rotate(360deg) blur(90px)"] }}
+      style={{ x: glowSpringX, y: glowSpringY }}
+      transition={{ 
+        default: { duration: 1.5, ease: "easeOut", delay: 0.2 },
+        filter: { duration: 8, repeat: Infinity, ease: "linear" }
+      }}
+      className="absolute top-1/3 -translate-y-1/2 -translate-x-1/2 w-[900px] h-[250px] pointer-events-none hidden lg:block z-10 bg-gradient-to-r from-blue-600/30 via-purple-500/40 to-pink-500/30 dark:from-blue-500/20 dark:via-purple-600/30 dark:to-pink-500/20 rounded-full"
+    />
+  {/* S-ОБРАЗНАЯ ЛЕНТА – без ограничений маски */}
+  <motion.svg
+    viewBox="0 0 400 400"
+    className="absolute inset-0 w-full h-full z-15 overflow-visible"
+    style={{
+      x: curveSpringX,
+      y: curveSpringY,
+      WebkitFilter: 'blur(0.5px)',
+      // Убираем маску, чтобы лента была видна полностью
+    }}
+    animate={{ rotate: [8, 11, 8] }}
+    transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+  >
+    <defs>
+      <linearGradient id="ribbonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.9" />
+        <stop offset="50%" stopColor="#a855f7" stopOpacity="0.95" />
+        <stop offset="100%" stopColor="#ec4899" stopOpacity="0.9" />
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    {/* Первая кривая (полная непрозрачность) */}
+    <motion.path
+      d="M 0,210 C 80,70 120,350 220,210"
+      fill="none"
+      stroke="url(#ribbonGradient)"
+      strokeWidth="8"
+      strokeLinecap="round"
+      filter="url(#glow)"
+      initial={{ pathLength: 0, opacity: 0 }}
+      whileInView={{ pathLength: 1, opacity: 1 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 2, delay: 0.3, ease: "easeInOut" }}
+    />
+
+    {/* Вторая кривая – первая половина (умеренная альфа) */}
+    <motion.path
+      d="M 260,130 C 300,70 325,95 342.5,120"
+      fill="none"
+      stroke="url(#ribbonGradient)"
+      strokeWidth="7"
+      strokeLinecap="round"
+      filter="url(#glow)"
+      initial={{ pathLength: 0, opacity: 0 }}
+      whileInView={{ pathLength: 1, opacity: 0.5 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 2, delay: 0.4, ease: "easeInOut" }}
+    />
+
+    {/* Вторая кривая – вторая половина (сильная альфа) */}
+    <motion.path
+      d="M 392.5,190 C 410,215 420,240 410,130"
+      fill="none"
+      stroke="url(#ribbonGradient)"
+      strokeWidth="5"
+      strokeLinecap="round"
+      filter="url(#glow)"
+      initial={{ pathLength: 0, opacity: 0 }}
+      whileInView={{ pathLength: 1, opacity: 0.15 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 2, delay: 0.5, ease: "easeInOut" }}
+    />
+  </motion.svg>
+
+  {/* ПЕРЕДНЯЯ КИСТЬ – обрезана слева, чтобы лента проходила между слоями */}
+  <motion.img
+    src={brushImg}
+    alt=""
+    initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)', scale: 0.9 }}
+    whileInView={{ opacity: 0.4, clipPath: 'inset(0 0% 0 0)', scale: 1, rotate: [8, 11, 8] }}
+    viewport={{ once: true, margin: "-100px" }}
+    style={{
+      x: moveX,
+      y: moveY,
+      WebkitFilter: 'blur(0px)',
+      clipPath: 'polygon(40% 0%, 100% 0%, 100% 100%, 40% 100%)', // обрезаем левую часть
+      // Маску оставляем, чтобы плавно затемнять края
+      maskImage: 'radial-gradient(circle, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)',
+      WebkitMaskImage: 'radial-gradient(circle, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%)'
+    }}
+    transition={{
+      default: { duration: 1.4, delay: 0.1, ease: [0.25, 1, 0.5, 1] },
+      rotate: { duration: 6, repeat: Infinity, ease: 'easeInOut' }
+    }}
+    className="absolute inset-0 w-full h-full object-contain select-none z-30 mix-blend-multiply dark:mix-blend-screen"
+  />
+</div>
+
+        {/* ОСНОВНОЙ КОНТЕНТ (текст + карточки) */}
+        <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 z-20">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl mb-20 -mx-4 md:-mx-12"
+          >
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg">
+              Всё, что нужно для<br />идеальной карточки
+            </h2>
+            <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+              Нейросети и умные алгоритмы автоматизируют рутинные задачи, чтобы вы сосредоточились на развитии бизнеса.
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-x-12 gap-y-16">
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="group border-t border-gray-200 dark:border-gray-700 pt-6 hover:scale-[1.02] transition-transform duration-300 hover:-translate-y-1 cursor-default"
+              >
+                <span className="text-sm font-medium text-gray-400 group-hover:text-blue-500 transition-colors">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <h3 className="text-2xl mt-3 font-bold transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== HOW IT WORKS ===== */}
+      <section className="py-24 md:py-32 border-t border-gray-100 dark:border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl mb-16 -mx-4 md:-mx-12"
+          >
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-lg">
+              Как это работает
+            </h2>
+            <p className="mt-4 text-xl text-gray-600 dark:text-gray-300">
+              Три шага до готовой оптимизированной карточки
+            </p>
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {steps.map((step, index) => (
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="h-full hover:scale-[1.03] transition-transform duration-300"
+              >
+                <Card className="h-full glass-card hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-default">
+                  <CardContent className="p-8 text-center flex flex-col h-full">
+                    <span className="inline-block text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-4 py-1 rounded-full mb-4">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <h3 className="text-2xl font-bold mt-4">{step.title}</h3>
+                    <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed flex-grow">
+                      {step.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== STATS ===== */}
+      <section className="py-16 border-t border-gray-100 dark:border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {stats.map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                className="hover:scale-105 transition-transform duration-300 cursor-default"
+              >
+                <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-md">
+                  {stat.value}
+                </div>
+                <div className="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== CTA ===== */}
+      <section className="py-24 md:py-32 border-t border-gray-100 dark:border-gray-800 ">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl mx-auto"
+          >
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-lg -mx-4 md:-mx-12">
+              Готовы оптимизировать товары?
+            </h2>
+            <p className="mt-6 text-xl text-gray-600 dark:text-gray-300">
+              Начните прямо сейчас – первые 3 товара бесплатно!
+            </p>
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
+              <Button size="lg" className="hover:text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg shadow-blue-500/30 transition-all duration-100 hover:from-blue-500 hover:to-purple-500 hover:scale-105 hover:shadow-s hover:shadow-purple-300/5 active:scale-98">
+                <Link to="/register" className="text-white flex items-center gap-2 hover:text-white">
+                  Создать аккаунт <ArrowRight size={20} className="transition-transform duration-100 group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" className="border-2">
-                <a href="https://t.me/ProSklad_SmartSeller_AI_Bot" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                  Попробовать бота <Zap size={18} />
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="border-2 border-gray-200 dark:border-gray-700 bg-transparent text-gray-700 dark:text-gray-200 transition-all duration-300 ease-out hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 active:scale-98 group"
+              >
+                <a 
+                  href="https://t.me/ProSklad_SmartSeller_AI_Bot" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center gap-2 hover:text-inherit"
+                >
+                  Открыть бота 
+                  <Zap size={18} className="transition-transform duration-300 ease-out group-hover:scale-125 group-hover:rotate-12 text-amber-500" />
                 </a>
               </Button>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* ===== FEATURES ===== */}
-        <section className="py-24 md:py-32 relative overflow-hidden">
-          {/* Кисть – слева от текста */}
-            <img
-              src={brushImg}
-              alt=""
-              className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-56 opacity-20 blur-sm select-none pointer-events-none hidden lg:block"
-              style={{ transform: 'rotate(10deg)' }}
-            />
-            {/* Клавиатура – справа от текста */}
-            <img
-              src={keyboardImg}
-              alt=""
-              className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-64 opacity-20 blur-sm select-none pointer-events-none hidden lg:block"
-              style={{ transform: 'rotate(-5deg)' }}
-            />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/20 to-transparent dark:via-blue-900/10" />
-          <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-              className="max-w-3xl mb-20 -mx-4 md:-mx-12"
-            >
-              <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg">
-                Всё, что нужно для<br />идеальной карточки
-              </h2>
-              <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                Нейросети и умные алгоритмы автоматизируют рутинные задачи, чтобы вы сосредоточились на развитии бизнеса.
-              </p>
-            </motion.div>
-            <div className="grid md:grid-cols-3 gap-x-12 gap-y-16">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="group border-t border-gray-200 dark:border-gray-700 pt-6 hover:scale-[1.02] transition-transform duration-300 hover:-translate-y-1 cursor-default"
-                >
-                  <span className="text-sm font-medium text-gray-400 group-hover:text-blue-500 transition-colors">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <h3 className="text-2xl mt-3 font-bold transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </motion.div>
-              ))}
             </div>
-          </div>
-        </section>
+          </motion.div>
+        </div>
+      </section>
 
-        {/* ===== HOW IT WORKS ===== */}
-        <section className="py-24 md:py-32 border-t border-gray-100 dark:border-gray-800">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-              className="max-w-3xl mb-16 -mx-4 md:-mx-12"
-            >
-              <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-lg">
-                Как это работает
-              </h2>
-              <p className="mt-4 text-xl text-gray-600 dark:text-gray-300">
-                Три шага до готовой оптимизированной карточки
-              </p>
-            </motion.div>
-            <div className="grid md:grid-cols-3 gap-8">
-              {steps.map((step, index) => (
-                <motion.div
-                  key={step.title}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="h-full hover:scale-[1.03] transition-transform duration-300"
-                >
-                  <Card className="h-full glass-card hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-default">
-                    <CardContent className="p-8 text-center flex flex-col h-full">
-                      <span className="inline-block text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-4 py-1 rounded-full mb-4">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <h3 className="text-2xl font-bold mt-4">{step.title}</h3>
-                      <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed flex-grow">
-                        {step.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== STATS ===== */}
-        <section className="py-16 border-t border-gray-100 dark:border-gray-800">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              {stats.map((stat, i) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.08 }}
-                  className="hover:scale-105 transition-transform duration-300 cursor-default"
-                >
-                  <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-md">
-                    {stat.value}
-                  </div>
-                  <div className="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== CTA ===== */}
-        <section className="py-24 md:py-32 border-t border-gray-100 dark:border-gray-800">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-              className="max-w-3xl mx-auto"
-            >
-              <h2 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-lg -mx-4 md:-mx-12">
-                Готовы оптимизировать товары?
-              </h2>
-              <p className="mt-6 text-xl text-gray-600 dark:text-gray-300">
-                Начните прямо сейчас – первые 3 товара бесплатно!
-              </p>
-              <div className="mt-10 flex flex-wrap justify-center gap-4">
-                <Button asChild size="lg" className="shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-shadow">
-                  <Link to="/register" className="text-white flex items-center gap-2">
-                    Создать аккаунт <ArrowRight size={20} />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="border-2">
-                  <a href="https://t.me/ProSklad_SmartSeller_AI_Bot" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                    Открыть бота <Sparkles size={18} />
-                  </a>
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        <LandingFooter />
+      <LandingFooter />
     </div>
   );
 };
