@@ -23,7 +23,7 @@ const HomePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/30">
+    //<div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/30">
       <div className="min-h-screen bg-white dark:bg-gray-900 overflow-x-hidden">
         {/* ===== Плавающий хедер ===== */}
         <motion.header
@@ -53,7 +53,7 @@ const HomePage: React.FC = () => {
               <Link to="/login" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Войти
               </Link>
-              <Button asChild size="sm" className="text-white shadow-md shadow-blue-500/20 hover:shadow-blue-500/40 transition-shadow">
+              <Button asChild size="sm" className="text-white shadow-md shadow-blue-500/20 hover:text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 transition-shadow">
                 <Link to="/register">Начать бесплатно</Link>
               </Button>
             </div>
@@ -63,21 +63,21 @@ const HomePage: React.FC = () => {
         {/* ===== HERO ===== */}
         <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50/30 via-white to-purple-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <img
-            src="monitorImg"
+            src={monitorImg}
             alt=""
             className="absolute -top-20 -left-20 w-96 opacity-20 blur-sm select-none pointer-events-none hidden md:block"
             style={{ transform: 'rotate(-8deg)' }}
           />
           {/* Декорация 2: кисть (справа снизу) */}
           <img
-            src="brushImg"
+            src={brushImg}
             alt=""
             className="absolute -bottom-16 -right-16 w-72 opacity-25 blur-sm select-none pointer-events-none hidden md:block"
             style={{ transform: 'rotate(12deg)' }}
           />
           {/* Декорация 3: клавиатура (центр, но под контентом) */}
           <img
-            src="keyboardImg"
+            src={keyboardImg}
             alt=""
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] opacity-10 blur-md select-none pointer-events-none hidden md:block"
           />
@@ -266,7 +266,7 @@ const HomePage: React.FC = () => {
 
         <LandingFooter />
       </div>
-    </div>
+    //</div>
   );
 };
 
