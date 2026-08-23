@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { CreditCard } from 'lucide-react';
+
 import {
   LayoutDashboard,
   Package,
@@ -41,6 +43,7 @@ const MainLayout: React.FC = () => {
     { to: '/infographics', label: 'Инфографика', icon: Image },
     { to: '/reports', label: 'Отчёты', icon: BarChart3 },
     { to: '/profile', label: 'Профиль', icon: User },
+    { to: '/dashboard/pricing', label: 'Тарифы', icon: CreditCard },
   ];
 
   const userInitials = user?.username

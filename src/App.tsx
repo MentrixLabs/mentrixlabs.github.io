@@ -146,6 +146,7 @@ const App: React.FC = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/reports/view/:id" element={<ReportViewPage />} />
+          <Route path="/dashboard/pricing" element={<PricingPage dashboardMode />} />
 
           {/* Перенаправление с корня после входа на дашборд */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

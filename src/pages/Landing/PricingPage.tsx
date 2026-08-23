@@ -1,8 +1,12 @@
 // src/pages/Landing/PricingPage.tsx
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, X, ChevronDown, ChevronUp, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { createPayment } from '@/api/payment';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { getErrorMessage } from '@/utils/getErrorMessage';
 import {
+  Alert,
   Badge,
   Button,
   Card,
@@ -20,18 +24,69 @@ import {
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 
-const PricingPage: React.FC = () => {
+import { useAuthStore } from '@/store/authStore';
+
+interface PricingPageProps {
+  dashboardMode?: boolean;
+}
+
+const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      <LandingHeader />
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
 
-      {/* ===== HERO SECTION ===== */}
+  const [searchParams] = useSearchParams();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
+
+  // Автоматический запуск оплаты, если мы в дашборд-режиме и есть параметр plan
+  useEffect(() => {
+    const plan = searchParams.get('plan');
+    if (dashboardMode && plan && isAuthenticated && !paymentInitiated) {
+      const validPlans = ['free', 'starter', 'business'];
+      if (validPlans.includes(plan) && plan !== 'free') {
+        setPaymentInitiated(true);
+        handleSelectPlan(plan);
+      }
+    }
+  }, [searchParams, dashboardMode, isAuthenticated, paymentInitiated]);
+
+  const handleSelectPlan = async (plan: string) => {
+    if (plan === 'free') {
+      navigate('/dashboard');
+      return;
+    }
+    setLoadingPlan(plan);
+    setError(null);
+    try {
+      const amounts: Record<string, number> = {
+        starter: 12990,
+        business: 52990,
+      };
+      const amount = amounts[plan];
+      if (!amount) {
+        setError('Неизвестный тариф');
+        return;
+      }
+      const payment = await createPayment({ amount, description: `Оплата тарифа ${plan}` });
+      window.location.href = payment.confirmation_url;
+    } catch (err) {
+      setError(getErrorMessage(err, 'Не удалось создать платёж'));
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  // Внутри компонента PricingPage, перед return:
+  const renderFullPage = () => (
+    <>
+      {/* Hero */}
       <section className="py-16 md:py-24 border-b border-gray-100 dark:border-gray-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-4xl mx-auto">
@@ -50,11 +105,9 @@ const PricingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== PRICING CARDS ===== */}
+      {/* Карточки */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Keeps heading order h1 → h2 → h3: the plan names are `CardTitle` (<h3>) and
-              this section has no visible heading of its own. */}
           <h2 className="sr-only">Тарифные планы</h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {plans.map((plan, index) => (
@@ -65,8 +118,6 @@ const PricingPage: React.FC = () => {
                 }`}
               >
                 <CardHeader>
-                  {/* Fixed-height slot keeps plan names aligned across the row whether or
-                      not a card carries the badge. Replaces the old `-mt-10` float. */}
                   <div className="min-h-6 mb-3">
                     {plan.popular && <Badge variant="default">Популярный</Badge>}
                   </div>
@@ -109,15 +160,19 @@ const PricingPage: React.FC = () => {
                 </CardContent>
                 <CardFooter>
                   <Button
-                    asChild
                     size="lg"
                     variant={plan.popular ? 'default' : 'secondary'}
                     className="w-full"
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        navigate(`/dashboard/pricing?plan=${plan.id}`);
+                      } else {
+                        navigate(`/register?plan=${plan.id}`);
+                      }
+                    }}
                   >
-                    <Link to={plan.ctaLink}>
-                      {plan.ctaText}
-                      <ArrowRight size={18} className="ml-2" aria-hidden="true" />
-                    </Link>
+                    {plan.ctaText}
+                    <ArrowRight size={18} className="ml-2" />
                   </Button>
                 </CardFooter>
               </Card>
@@ -126,7 +181,7 @@ const PricingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== FEATURES COMPARISON TABLE ===== */}
+      {/* Сравнение функций */}
       <section className="py-16 md:py-24 bg-gray-50 dark:bg-gray-800/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -187,7 +242,7 @@ const PricingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== FAQ SECTION ===== */}
+      {/* FAQ */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
           <div className="text-center mb-12">
@@ -232,7 +287,7 @@ const PricingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== CTA SECTION ===== */}
+      {/* CTA */}
       <section className="py-16 md:py-24 border-t border-gray-100 dark:border-gray-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-2xl mx-auto">
@@ -256,7 +311,34 @@ const PricingPage: React.FC = () => {
           </div>
         </div>
       </section>
+    </>
+  );
 
+  // Рендеринг: если dashboardMode – без хедера/футера, иначе с хедером/футером
+  if (dashboardMode) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Тарифные планы</h1>
+          <Button variant="outline" onClick={() => navigate('/dashboard')}>
+            Назад к панели
+          </Button>
+        </div>
+        {error && <Alert variant="error">{error}</Alert>}
+        {renderFullPage()}
+        {isAuthenticated && (
+          <div className="mt-8 text-center text-sm text-gray-500">
+            Ваш текущий план: <strong>Бесплатный</strong> (заглушка)
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <LandingHeader />
+      {renderFullPage()}
       <LandingFooter />
     </div>
   );
@@ -266,12 +348,12 @@ const PricingPage: React.FC = () => {
 
 const plans = [
   {
+    id: 'free',
     name: 'Бесплатный',
     description: 'Для знакомства с сервисом',
     price: 'Бесплатно',
     popular: false,
     ctaText: 'Начать',
-    ctaLink: '/register?plan=free',
     features: [
       { text: 'До 3 товаров', included: true },
       { text: 'Генерация SEO (базовая)', included: true },
@@ -283,12 +365,12 @@ const plans = [
     ],
   },
   {
+    id: 'starter',
     name: 'Старт',
     description: 'Для небольших магазинов',
     price: '12 990 ₽',
     popular: true,
     ctaText: 'Выбрать',
-    ctaLink: '/register?plan=starter',
     features: [
       { text: 'До 100 товаров', included: true },
       { text: 'Генерация SEO (расширенная)', included: true },
@@ -300,12 +382,12 @@ const plans = [
     ],
   },
   {
+    id: 'business',
     name: 'Бизнес',
     description: 'Для профессиональных продавцов',
     price: '52 990 ₽',
     popular: false,
     ctaText: 'Выбрать',
-    ctaLink: '/register?plan=business',
     features: [
       { text: 'Неограниченно товаров', included: true },
       { text: 'Генерация SEO (премиум)', included: true },
