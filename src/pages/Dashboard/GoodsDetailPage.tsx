@@ -182,7 +182,6 @@ const SeoTab: React.FC<{ goodsItem: GoodsItem }> = ({ goodsItem }) => {
   }, [goodsId]);
 
   const handleGenerate = async () => {
-    const [error, setError] = useState<string | null>(null);
     if (!status) {
       setError('Не удалось проверить лимиты. Попробуйте позже.');
       return;
@@ -333,7 +332,6 @@ const InfographicsTab: React.FC<{ goodsItem: GoodsItem; onUpdate?: () => void }>
 
   // Генерация новых изображений (Kandinsky)
   const handleGenerate = async (count = 1) => {
-    const [error, setError] = useState<string | null>(null);
     if (!status) {
       setError('Не удалось проверить лимиты. Попробуйте позже.');
       return;

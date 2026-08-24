@@ -42,8 +42,6 @@ const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
 
   // Генерация новых изображений
   const handleGenerate = async (count = 4) => {
-          
-    const [error, setError] = useState<string | null>(null);
     if (!status) {
       setError('Не удалось проверить лимиты. Попробуйте позже.');
       return;
@@ -71,8 +69,6 @@ const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
 
   // Улучшение (коллаж + текст)
   const handleEnhance = async (count = 4) => {
-          
-    const [error, setError] = useState<string | null>(null);
     if (!status) {
       setError('Не удалось проверить лимиты. Попробуйте позже.');
       return;

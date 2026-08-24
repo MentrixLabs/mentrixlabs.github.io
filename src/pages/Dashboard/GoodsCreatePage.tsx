@@ -19,7 +19,6 @@ const GoodsCreatePage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
           
-    const [error, setError] = useState<string | null>(null);
     if (!status) {
       setError('Не удалось проверить лимиты. Попробуйте позже.');
       return;
