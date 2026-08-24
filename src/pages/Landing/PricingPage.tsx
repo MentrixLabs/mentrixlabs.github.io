@@ -45,11 +45,14 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
   const [error, setError] = useState<string | null>(null);
   const [paymentInitiated, setPaymentInitiated] = useState(false);
 
+  // Определяем, какие планы показывать: все, кроме free, если dashboardMode
+  const displayPlans = dashboardMode ? plans.filter(p => p.id !== 'free') : plans;
+
   // Автоматический запуск оплаты, если мы в дашборд-режиме и есть параметр plan
   useEffect(() => {
     const plan = searchParams.get('plan');
     if (dashboardMode && plan && isAuthenticated && !paymentInitiated) {
-      const validPlans = ['free', 'starter', 'business'];
+      const validPlans = ['starter', 'business'];
       if (validPlans.includes(plan) && plan !== 'free') {
         setPaymentInitiated(true);
         handleSelectPlan(plan);
@@ -83,6 +86,19 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
     }
   };
 
+  // Обработчик клика по кнопке плана
+  const handlePlanClick = (plan: typeof plans[0]) => {
+    if (dashboardMode && plan.id === 'free') {
+      navigate('/dashboard');
+      return;
+    }
+    if (isAuthenticated) {
+      navigate(`/dashboard/pricing?plan=${plan.id}`);
+    } else {
+      navigate(`/register?plan=${plan.id}`);
+    }
+  };
+
   // Внутри компонента PricingPage, перед return:
   const renderFullPage = () => (
     <>
@@ -110,7 +126,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="sr-only">Тарифные планы</h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {plans.map((plan, index) => (
+            {displayPlans.map((plan, index) => (
               <Card
                 key={index}
                 className={`flex flex-col ${
@@ -163,13 +179,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
                     size="lg"
                     variant={plan.popular ? 'default' : 'secondary'}
                     className="w-full"
-                    onClick={() => {
-                      if (isAuthenticated) {
-                        navigate(`/dashboard/pricing?plan=${plan.id}`);
-                      } else {
-                        navigate(`/register?plan=${plan.id}`);
-                      }
-                    }}
+                    onClick={() => handlePlanClick(plan)}
                   >
                     {plan.ctaText}
                     <ArrowRight size={18} className="ml-2" />
@@ -195,7 +205,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Функция</TableHead>
-                  {plans.map((plan, idx) => (
+                  {displayPlans.map((plan, idx) => (
                     <TableHead
                       key={idx}
                       className={`text-center ${
@@ -211,29 +221,34 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
                 {comparisonFeatures.map((row, idx) => (
                   <TableRow key={idx}>
                     <TableCell className="font-medium">{row.feature}</TableCell>
-                    {row.values.map((value, i) => (
-                      <TableCell key={i} className="text-center">
-                        {typeof value === 'boolean' ? (
-                          value ? (
-                            <Check
-                              size={20}
-                              className="text-green-600 dark:text-green-400 mx-auto"
-                              role="img"
-                              aria-label="Да"
-                            />
+                    {displayPlans.map((plan, i) => {
+                      // Найти исходный индекс плана в полном списке plans
+                      const originalIndex = plans.findIndex(p => p.id === plan.id);
+                      const value = row.values[originalIndex];
+                      return (
+                        <TableCell key={i} className="text-center">
+                          {typeof value === 'boolean' ? (
+                            value ? (
+                              <Check
+                                size={20}
+                                className="text-green-600 dark:text-green-400 mx-auto"
+                                role="img"
+                                aria-label="Да"
+                              />
+                            ) : (
+                              <X
+                                size={20}
+                                className="text-gray-400 mx-auto"
+                                role="img"
+                                aria-label="Нет"
+                              />
+                            )
                           ) : (
-                            <X
-                              size={20}
-                              className="text-gray-400 mx-auto"
-                              role="img"
-                              aria-label="Нет"
-                            />
-                          )
-                        ) : (
-                          value
-                        )}
-                      </TableCell>
-                    ))}
+                            value
+                          )}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 ))}
               </TableBody>
@@ -287,30 +302,32 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 md:py-24 border-t border-gray-100 dark:border-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-2xl mx-auto">
-            <h2>Начните с бесплатного тарифа</h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-              Оцените все возможности без риска – первые 3 товара бесплатно.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Button asChild size="lg">
-                <Link to="/register">
-                  Зарегистрироваться
-                  <ArrowRight size={20} className="ml-2" aria-hidden="true" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <a href="https://t.me/ProSklad_SmartSeller_AI_Bot" target="_blank" rel="noopener noreferrer">
-                  Открыть бота
-                </a>
-              </Button>
+      {/* CTA – скрываем в dashboardMode */}
+      {!dashboardMode && (
+        <section className="py-16 md:py-24 border-t border-gray-100 dark:border-gray-800">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="max-w-2xl mx-auto">
+              <h2>Начните с бесплатного тарифа</h2>
+              <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                Оцените все возможности без риска – первые 3 товара бесплатно.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <Button asChild size="lg">
+                  <Link to="/register">
+                    Зарегистрироваться
+                    <ArrowRight size={20} className="ml-2" aria-hidden="true" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg">
+                  <a href="https://t.me/ProSklad_SmartSeller_AI_Bot" target="_blank" rel="noopener noreferrer">
+                    Открыть бота
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 

@@ -93,7 +93,7 @@ const HomePage: React.FC = () => {
             <Button 
               variant="outline" 
               size="lg" 
-              className="dark: bg-transparent text-gray-700 dark:text-gray-200 transition-all duration-300 ease-out hover: hover:text-blue-600 dark:hover:text-blue-400 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 active:scale-98 group"
+              className="dark: bg-transparent text-gray-700 dark:text-gray-200 transition-all duration-300 ease-out hover: hover:text-blue-600 dark:hover:text-blue-400 hover:scale-105 active:scale-98 group"
             >
               <a 
                 href="https://t.me/ProSklad_SmartSeller_AI_Bot" 
