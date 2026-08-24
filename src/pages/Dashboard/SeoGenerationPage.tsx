@@ -15,6 +15,9 @@ import {
 } from '@/components/ui';
 import { Sparkles, Loader2, Package } from 'lucide-react';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { useUserStatus } from '@/hooks/useUserStatus';
+import { canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
+
 
 const SeoGenerationPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -71,6 +74,18 @@ const SeoGenerationPage: React.FC = () => {
   const handleGenerate = useCallback(async () => {
     if (!selectedGoodsId) {
       setError('Выберите товар');
+      return;
+    }
+
+    const { status, loading: statusLoading, error: statusError } = useUserStatus();
+      
+    if (!status) {
+      setError('Не удалось проверить лимиты. Попробуйте позже.');
+      return;
+    }
+    // Проверка лимита с помощью утилиты
+    if (!canGenerateSeo(status)) {
+      setError(getPlanLimitMessage(status, 'generate_infographics'));
       return;
     }
     setLoading(true);

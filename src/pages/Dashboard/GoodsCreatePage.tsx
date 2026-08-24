@@ -3,11 +3,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoods } from '@/hooks/useGoods';
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import { useUserStatus } from '@/hooks/useUserStatus';
+import { canAddGoods, getPlanLimitMessage } from '@/utils/planHelpers';
 
 const GoodsCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { addGoods, loading: goodsLoading } = useGoods();
 
+  const { status, loading: statusLoading, error: statusError } = useUserStatus();
+  
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -18,6 +23,15 @@ const GoodsCreatePage: React.FC = () => {
     setError(null);
     setSuccess(null);
 
+    if (!status) {
+      setError('Не удалось проверить лимиты. Попробуйте позже.');
+      return;
+    }
+    // Проверка лимита с помощью утилиты
+    if (!canAddGoods(status)) {
+      setError(getPlanLimitMessage(status, 'add_goods'));
+      return;
+    }
     if (!url.trim()) {
       setError('URL товара обязателен');
       return;

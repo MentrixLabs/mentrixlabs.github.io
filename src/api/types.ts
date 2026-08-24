@@ -8,6 +8,27 @@ export interface User {
   created_at: string;
 }
 
+// Типы для ответа /user/status
+export interface PlanDetails {
+  max_goods: number;
+  max_seo_per_day: number;
+  max_infographics_per_day: number;
+  max_infographics_per_request: number;
+  support_level: 'email' | 'phone' | 'full';
+  api_access: boolean;
+  priority_support: boolean;
+  reports_format: 'basic' | 'pdf' | 'pdf_excel';
+  features_labels: Record<string, boolean>;
+}
+
+export interface UserStatusResponse {
+  total_goods: number;
+  seo_today: number;
+  infographics_today: number;
+  plan: string; // 'free' | 'starter' | 'business'
+  plan_details: PlanDetails;
+}
+
 // Данные товара (карточка) – соответствует новой схеме
 export interface GoodsItem {
   id: string;
