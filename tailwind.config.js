@@ -36,6 +36,7 @@ module.exports = {
         'fade-in': 'fadeIn 0.5s ease-out',
         'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         'pulse-glow': 'pulseGlow 2s infinite',
+        'draw': 'draw 3s ease-in-out infinite alternate',
       },
       keyframes: {
         fadeIn: {
@@ -50,6 +51,11 @@ module.exports = {
           '0%': { boxShadow: '0 0 0 0 rgba(59,130,246,0.4)' },
           '70%': { boxShadow: '0 0 0 10px rgba(59,130,246,0)' },
           '100%': { boxShadow: '0 0 0 0 rgba(59,130,246,0)' },
+        },
+        draw: { // <-- добавь
+          '0%': { strokeDashoffset: '1200' },
+          '50%': { strokeDashoffset: '0' },
+          '100%': { strokeDashoffset: '1200' },
         },
       },
     },

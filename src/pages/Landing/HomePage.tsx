@@ -5,6 +5,7 @@ import { motion, useInView, useMotionValue, useTransform, useSpring } from 'fram
 import { ArrowRight, CheckCircle, Sparkles, Zap } from 'lucide-react';
 import { Button, Card, CardContent } from '@/components/ui';
 import LandingFooter from '@/components/landing/LandingFooter';
+import LandingHeader from '@/components/landing/LandingHeader';
 const monitorImg = '/images/monitor.png';
 const brushImg = '/images/brush.png';
 const keyboardImg = '/images/keyboard.png';
@@ -55,32 +56,7 @@ const HomePage: React.FC = () => {
         transition={{ duration: 0.4 }}
         className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all"
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white font-semibold text-lg shadow-md">
-              P
-            </div>
-            <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Proskladai
-            </span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <Link to="/features" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              Возможности
-            </Link>
-            <Link to="/pricing" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              Цены
-            </Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <Link to="/login" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              Войти
-            </Link>
-            <Button asChild size="sm" className="hover:text-white text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-md shadow-blue-500/20 transition-all duration-300 hover:from-blue-500 hover:to-purple-500 hover:scale-105 hover:shadow-lg hover:shadow-purple-300/5 active:scale-98">
-              <Link to="/register" className="hover:text-white">Начать бесплатно</Link>
-            </Button>
-          </div>
-        </div>
+        <LandingHeader />
       </motion.header>
 
       {/* ===== HERO ===== */}
@@ -117,7 +93,7 @@ const HomePage: React.FC = () => {
             <Button 
               variant="outline" 
               size="lg" 
-              className="border-2 border-gray-200 dark:border-gray-700 bg-transparent text-gray-700 dark:text-gray-200 transition-all duration-300 ease-out hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 active:scale-98 group"
+              className="dark: bg-transparent text-gray-700 dark:text-gray-200 transition-all duration-300 ease-out hover: hover:text-blue-600 dark:hover:text-blue-400 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 active:scale-98 group"
             >
               <a 
                 href="https://t.me/ProSklad_SmartSeller_AI_Bot" 

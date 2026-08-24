@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect, useState, forwardRef, useRef, useCallback } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -7,20 +7,12 @@ const buttonVariants = cva(
   "inline-flex items-center justify-center rounded font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
-      // Every non-`link` variant pins BOTH its resting and its hover text color.
-      // That is redundant for a real <button> (which inherits body color), but it is
-      // load-bearing for `asChild`: the rendered child is usually an <a>, and
-      // src/index.css declares `a { color: blue-600 }` / `a:hover { color: blue-700 }`
-      // as bare element rules. A direct element rule beats an inherited color, so a
-      // variant that leaves text color unset would render blue text on the variant's
-      // background (blue-on-blue for `default`). Pinning the color puts the value on
-      // the element itself, where it wins.
       variant: {
         default: "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md hover:shadow-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300",
         destructive: "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg",
-        outline: "border border-gray-300/50 dark:border-gray-700/50 bg-transparent backdrop-blur-sm hover:bg-white/10 dark:hover:bg-white/5",
+        outline: "bg-transparent backdrop-blur-sm hover:bg-white/10 dark:hover:bg-white/5",
         secondary: "bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-white hover:bg-gray-200/90",
-        ghost: "text-gray-900 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-100", // <-- добавьте эту строку
+        ghost: "text-gray-900 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-100",
         link: "text-blue-600 hover:underline",
       },
       size: {
@@ -44,16 +36,11 @@ export interface ButtonProps
   isLoading?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+// ========== Базовый Button ==========
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, isLoading = false, disabled, children, ...props }, ref) => {
     const isDisabled = disabled || isLoading;
 
-    // `asChild` renders the child element ITSELF with the button's classes merged onto
-    // it — it does not wrap the child. Wrapping in a <span> put the styling on the
-    // wrapper: padding/height lived on the span so only the child's text run was
-    // clickable (dead click zone around it), and the child <a> kept its own color from
-    // the base `a` rule instead of the button's. Cloning is the same approach Radix's
-    // Slot takes internally; hand-rolled here to avoid adding a dependency.
     if (asChild) {
       const child = React.Children.only(children) as React.ReactElement<{
         className?: string;
@@ -61,19 +48,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       return React.cloneElement(child, {
         ...props,
         ...child.props,
-        // Child's own className is merged last so a call site can still override a
-        // variant class, matching the non-asChild path's merge order.
         className: cn(
           buttonVariants({ variant, size, className }),
-          // `disabled:` variants key off the :disabled pseudo-class, which never
-          // matches an <a>, so the disabled look has to be applied unconditionally.
           isDisabled && "opacity-50 pointer-events-none",
           child.props.className
         ),
-        // NOTE: the isLoading spinner is intentionally not injected in this path — the
-        // child is an arbitrary element and prepending to its children is not safe in
-        // general. `aria-busy`/`aria-disabled` still convey the state. No current call
-        // site combines asChild with isLoading.
         "aria-busy": isLoading || undefined,
         "aria-disabled": isDisabled || undefined,
         ...(ref ? { ref } : {}),
@@ -96,4 +75,532 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
-export { Button };
+export interface InteractiveButtonProps extends ButtonProps {
+  scaleAmount?: number;
+  glowRadius?: string;
+  transitionDelay?: number;
+}
+
+const InteractiveButton = forwardRef<
+  HTMLButtonElement,
+  InteractiveButtonProps
+>(
+  (
+    {
+      className,
+      style,
+      variant,
+      size,
+      scaleAmount = 1,
+      glowRadius = "100%",
+      children,
+      asChild = false,
+      disabled,
+      isLoading,
+      transitionDelay = 0,
+      ...props
+    },
+    ref
+  ) => {
+    /*
+     * Координаты курсора храним в ref.
+     * Они меняются очень часто, поэтому НЕ используем useState.
+     */
+    const mouseX = useRef(50);
+    const mouseY = useRef(50);
+
+    /*
+     * Текущий прогресс анимации:
+     *
+     * 0 = обычная кнопка
+     * 1 = максимальная выпуклость
+     */
+    const animationProgress = useRef(0);
+
+    /*
+     * Куда должна прийти анимация.
+     */
+    const animationTarget = useRef(0);
+
+    /*
+     * ID requestAnimationFrame.
+     */
+    const animationFrame = useRef<number | null>(null);
+
+    /*
+     * Нужен только для перерисовки React/SVG.
+     */
+    const [, forceRender] = useState(0);
+
+    const isDisabled = disabled || isLoading;
+
+    const CENTER_X = 50;
+    const CENTER_Y = 50;
+
+    /*
+     * Размер кнопки в SVG.
+     */
+    const HALF_WIDTH = 50;
+    const HALF_HEIGHT = 32;
+
+    /*
+     * 4 = хороший квадрокруг.
+     */
+    const SQUIRCLE_POWER = 4;
+
+    /*
+     * Сила выпуклости.
+     */
+    const strength = scaleAmount * 20;
+
+    /*
+     * Радиус воздействия курсора.
+     */
+    const radius = 25;
+
+    /*
+     * Запускаем плавную анимацию.
+     */
+    const startAnimation = useCallback(() => {
+      if (animationFrame.current !== null) {
+        return;
+      }
+
+      const animate = () => {
+        const current = animationProgress.current;
+        const target = animationTarget.current;
+
+        /*
+         * Плавное приближение к target.
+         */
+        const next =
+          current + (target - current) * 0.14;
+
+        animationProgress.current = next;
+
+        /*
+         * Просим React перерисовать SVG.
+         */
+        forceRender((value) => value + 1);
+
+        /*
+         * Если почти достигли цели —
+         * останавливаем RAF.
+         */
+        if (Math.abs(target - next) < 0.001) {
+          animationProgress.current = target;
+          animationFrame.current = null;
+
+          forceRender((value) => value + 1);
+
+          return;
+        }
+
+        animationFrame.current =
+          requestAnimationFrame(animate);
+      };
+
+      animationFrame.current =
+        requestAnimationFrame(animate);
+    }, []);
+
+    /*
+     * Останавливаем RAF при уничтожении компонента.
+     */
+    useEffect(() => {
+      return () => {
+        if (animationFrame.current !== null) {
+          cancelAnimationFrame(animationFrame.current);
+        }
+      };
+    }, []);
+
+    /*
+     * Движение мыши.
+     */
+    const handleMouseMove = (
+      e: React.MouseEvent<HTMLElement>
+    ) => {
+      const rect =
+        e.currentTarget.getBoundingClientRect();
+
+      const x =
+        ((e.clientX - rect.left) / rect.width) * 100;
+
+      const y =
+        ((e.clientY - rect.top) / rect.height) * 100;
+
+      /*
+       * Записываем координаты в ref.
+       */
+      mouseX.current = x;
+      mouseY.current = y;
+
+      /*
+       * Включаем деформацию.
+       */
+      animationTarget.current = 1;
+
+      startAnimation();
+    };
+
+    /*
+     * Уход мыши.
+     */
+    const handleMouseLeave = () => {
+      /*
+       * Возвращаем выпуклость к 0.
+       */
+      animationTarget.current = 0;
+
+      /*
+       * Возвращаем курсор в центр
+       * для градиента.
+       */
+      mouseX.current = 50;
+      mouseY.current = 50;
+
+      startAnimation();
+    };
+
+    /*
+     * Математическая форма квадрокруга.
+     *
+     * Используется суперэллипс:
+     *
+     * |x/a|^n + |y/b|^n = 1
+     *
+     * Без Bézier Q/C.
+     */
+    const superellipsePoint = (t: number) => {
+      const cos = Math.cos(t);
+      const sin = Math.sin(t);
+
+      const signX = Math.sign(cos);
+      const signY = Math.sign(sin);
+
+      const absCos = Math.abs(cos);
+      const absSin = Math.abs(sin);
+
+      /*
+       * X координата суперэллипса.
+       */
+      const x =
+        CENTER_X +
+        signX *
+          Math.pow(
+            absCos,
+            2 / SQUIRCLE_POWER
+          ) *
+          HALF_WIDTH;
+
+      /*
+       * Y координата базовой формы.
+       */
+      let y =
+        CENTER_Y +
+        signY *
+          Math.pow(
+            absSin,
+            2 / SQUIRCLE_POWER
+          ) *
+          HALF_HEIGHT;
+
+      /*
+       * Расстояние от точки формы
+       * до курсора по X.
+       */
+      const distance =
+        Math.abs(x - mouseX.current);
+
+      /*
+       * Сила воздействия курсора.
+       */
+      let influence =
+        1 - distance / radius;
+
+      influence = Math.max(
+        0,
+        Math.min(1, influence)
+      );
+
+      /*
+       * Smoothstep.
+       */
+      influence =
+        influence *
+        influence *
+        (3 - 2 * influence);
+
+      /*
+       * Чем ближе точка к верхней/нижней
+       * центральной части, тем сильнее
+       * она выпирает.
+       *
+       * На боках = 0.
+       */
+      const verticalFactor =
+        Math.pow(absSin, 0.5);
+
+      /*
+       * ВОТ ЗДЕСЬ используется
+       * animationProgress.current.
+       */
+      const deformation =
+        influence *
+        verticalFactor *
+        strength *
+        animationProgress.current;
+
+      /*
+       * Верх выпирает вверх,
+       * низ выпирает вниз.
+       */
+      if (y < CENTER_Y) {
+        y -= deformation;
+      } else {
+        y += deformation;
+      }
+
+      return {
+        x,
+        y,
+      };
+    };
+
+    /*
+     * Создаём точки суперэллипса.
+     */
+    const points = Array.from(
+      { length: 121 },
+      (_, index) => {
+        const t =
+          (index / 120) *
+          Math.PI *
+          2;
+
+        return superellipsePoint(t);
+      }
+    );
+
+    /*
+     * SVG path.
+     */
+    const buttonPath =
+      points
+        .map(
+          (point, index) =>
+            `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`
+        )
+        .join(" ") + " Z";
+
+    /*
+     * SVG кнопки.
+     */
+    const buttonBackground = (
+      <svg
+        className="
+          absolute
+          inset-0
+          w-full
+          h-full
+          pointer-events-none
+          overflow-visible
+        "
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <radialGradient
+            id="button-gradient"
+            gradientUnits="userSpaceOnUse"
+            cx={`${mouseX.current}`}
+            cy={`${mouseY.current}`}
+            r={glowRadius}
+          >
+            <stop
+              offset="10%"
+              stopColor="#3b82f6"
+            />
+
+            <stop
+              offset="35%"
+              stopColor="#6366f1"
+            />
+
+            <stop
+              offset="70%"
+              stopColor="#8b5cf6"
+            />
+
+            <stop
+              offset="100%"
+              stopColor="#2563eb"
+            />
+          </radialGradient>
+        </defs>
+
+        <path
+          d={buttonPath}
+          fill="url(#button-gradient)"
+        />
+      </svg>
+    );
+
+    /*
+     * Стили контейнера.
+     */
+    const buttonStyle: React.CSSProperties = {
+      position: "relative",
+
+      background: "transparent",
+
+      /*
+       * SVG сам меняет форму,
+       * поэтому CSS transform здесь НЕ нужен.
+       */
+      transition: "none",
+
+      transitionDelay: `${transitionDelay}s`,
+
+      ...style,
+    };
+
+    const wrapperClassName = cn(
+      buttonVariants({ variant, size }),
+      "relative inline-flex",
+      "items-center justify-center",
+      "font-medium",
+      "overflow-visible",
+      "isolate",
+
+      "focus-visible:outline-none",
+      "focus-visible:ring-2",
+      "focus-visible:ring-blue-500",
+      "focus-visible:ring-offset-2",
+
+      isDisabled &&
+        "opacity-50 pointer-events-none",
+
+      className
+    );
+
+    /*
+     * Контент.
+     */
+    const content = (
+      <span
+        className="
+          relative
+          z-20
+          flex
+          h-full
+          w-full
+          items-center
+          justify-center
+          gap-2
+          text-white
+        "
+      >
+        {isLoading && (
+          <Loader2
+            className="mr-2 h-4 w-4 animate-spin"
+            aria-hidden="true"
+          />
+        )}
+
+        {children}
+      </span>
+    );
+
+    const sharedProps = {
+      ref,
+
+      onMouseMove: handleMouseMove,
+
+      onMouseLeave: handleMouseLeave,
+
+      className: wrapperClassName,
+
+      style: buttonStyle,
+
+      ...(isDisabled && {
+        "aria-disabled": true,
+      }),
+    };
+
+    /*
+     * asChild
+     */
+    if (asChild) {
+      const child =
+        React.Children.only(
+          children
+        ) as React.ReactElement;
+
+      return React.cloneElement(child, {
+        ...sharedProps,
+        ...props,
+
+        className: cn(
+          child.props.className,
+          sharedProps.className
+        ),
+
+        style: {
+          ...sharedProps.style,
+          ...child.props.style,
+        },
+
+        children: (
+          <>
+            {buttonBackground}
+
+            <span
+              className="
+                relative
+                z-20
+                flex
+                h-full
+                w-full
+                items-center
+                justify-center
+                gap-2
+              "
+            >
+              {isLoading && (
+                <Loader2
+                  className="mr-2 h-4 w-4 animate-spin"
+                  aria-hidden="true"
+                />
+              )}
+
+              {child.props.children}
+            </span>
+          </>
+        ),
+      });
+    }
+
+    /*
+     * Обычная button.
+     */
+    return (
+      <button
+        {...sharedProps}
+        {...props}
+        disabled={isDisabled}
+      >
+        {buttonBackground}
+
+        {content}
+      </button>
+    );
+  }
+);
+
+InteractiveButton.displayName =
+  "InteractiveButton";
+
+export { Button, InteractiveButton };

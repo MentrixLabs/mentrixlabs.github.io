@@ -1,9 +1,9 @@
 // src/pages/Landing/FeaturesPage.tsx
-import React from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, Zap, Sparkles, Image, FileText, BarChart3 } from 'lucide-react';
-import { Button, Card, CardContent } from '@/components/ui';
+import { Button, Card, CardContent, InteractiveButton } from '@/components/ui';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
 
@@ -46,11 +46,32 @@ const FeaturesPage: React.FC = () => {
       color: 'from-indigo-500 to-blue-400',
     },
   ];
+  const [isHeaderVisible, setIsHeaderVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Секция "Всё, что нужно…" начинается примерно на 50% высоты экрана
+      const HighTriggerPoint = window.innerHeight * 0.8;
+      const LowTriggerPoint = window.innerHeight * 1.65;
+      setIsHeaderVisible(window.scrollY > HighTriggerPoint && window.scrollY < LowTriggerPoint);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/30">
       <div className="min-h-screen bg-white dark:bg-gray-900 overflow-x-hidden">
-        <LandingHeader />
+        {/* ===== Плавающий хедер ===== */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: isHeaderVisible ? 1 : 0, y: isHeaderVisible ? 0 : -20 }}
+          transition={{ duration: 0.4 }}
+          className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all"
+        >
+          <LandingHeader />
+        </motion.header>
 
         {/* Hero */}
         <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
@@ -79,11 +100,25 @@ const FeaturesPage: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="mt-10"
             >
-              <Button asChild size="lg" className="shadow-lg shadow-blue-500/30">
-                <Link to="/register" className="flex items-center gap-2">
-                  Начать бесплатно <ArrowRight size={20} />
+              <InteractiveButton
+                asChild
+                className="w-4/5 h-14 shadow-none hover:shadow-none focus:shadow-none"
+                scaleAmount={0.2}
+                glowRadius="100%"
+              >
+                <Link
+                    to="/register"
+                    className="text-white flex items-center justify-center gap-2 hover:text-white shadow-none hover:shadow-none"
+                  >
+                  Начать бесплатно
+
+                  <ArrowRight
+                    size={20}
+                    className="transition-transform duration-100"
+                  />
                 </Link>
-              </Button>
+              </InteractiveButton>
+
             </motion.div>
           </div>
         </section>
@@ -118,7 +153,38 @@ const FeaturesPage: React.FC = () => {
         </section>
 
         {/* CTA */}
-        <section className="py-20 md:py-28 border-t border-gray-100 dark:border-gray-800">
+        <section
+          className="
+            relative
+            z-30
+            min-h-screen
+            flex
+            items-center
+            justify-center
+            border-t
+            border-gray-100
+            dark:border-gray-800
+            bg-white
+            dark:bg-gray-900
+          "
+        >
+          {/* SVG BACKGROUND */}
+          <img
+            src="backline.svg"
+            alt=""
+            aria-hidden="true"
+            className="
+              absolute
+              inset-0
+              w-full
+              h-full
+              object-cover
+              pointer-events-none
+              select-none
+              z-[-1]
+            "
+          />
+
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -127,18 +193,44 @@ const FeaturesPage: React.FC = () => {
               transition={{ duration: 0.7 }}
               className="max-w-3xl mx-auto"
             >
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h2
+                className="
+                  text-5xl
+                  md:text-5xl
+                  lg:text-[5rem]
+                  leading-none
+                  font-bold
+                  tracking-tight
+                  bg-gradient-to-r
+                  from-blue-600
+                  to-purple-600
+                  bg-clip-text
+                  text-transparent
+                "
+              >
                 Готовы попробовать?
               </h2>
               <p className="mt-4 text-xl text-gray-600 dark:text-gray-300">
                 Присоединяйтесь к сообществу продавцов, которые уже используют AI для роста продаж.
               </p>
               <div className="mt-10">
-                <Button asChild size="lg" className="shadow-lg shadow-blue-500/30">
-                  <Link to="/register" className="flex items-center gap-2">
-                    Создать аккаунт <ArrowRight size={20} />
+                <InteractiveButton
+                  asChild
+                  className="w-4/5 h-14 shadow-none hover:shadow-none focus:shadow-none"
+                  scaleAmount={0.2}
+                  glowRadius="100%"
+                >
+                  <Link
+                    to="/register"
+                    className="text-white flex items-center justify-center gap-2 hover:text-white shadow-none hover:shadow-none"
+                  >
+                    Создать аккаунт
+                    <ArrowRight
+                      size={20}
+                      className="transition-transform duration-100 group-hover:translate-x-1"
+                    />
                   </Link>
-                </Button>
+                </InteractiveButton>
               </div>
             </motion.div>
           </div>
