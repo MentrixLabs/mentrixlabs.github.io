@@ -53,7 +53,7 @@ const FeaturesPage: React.FC = () => {
       // Секция "Всё, что нужно…" начинается примерно на 50% высоты экрана
       const HighTriggerPoint = window.innerHeight * 0.8;
       const LowTriggerPoint = window.innerHeight * 1.65;
-      setIsHeaderVisible(window.scrollY > HighTriggerPoint && window.scrollY < LowTriggerPoint);
+      setIsHeaderVisible(window.scrollY < HighTriggerPoint && window.scrollY < LowTriggerPoint);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -72,56 +72,6 @@ const FeaturesPage: React.FC = () => {
         >
           <LandingHeader />
         </motion.header>
-
-        {/* Hero */}
-        <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-white to-purple-50/40 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" />
-          <div className="container relative mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent -mx-4 md:-mx-12"
-            >
-              Все возможности<br />
-              <span className="bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text">для продвижения</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.15 }}
-              className="mt-6 text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
-            >
-              Узнайте, как Proskladai помогает тысячам продавцов выводить товары в топ.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="mt-10"
-            >
-              <InteractiveButton
-                asChild
-                className="w-4/5 h-14 shadow-none hover:shadow-none focus:shadow-none"
-                scaleAmount={0.2}
-                glowRadius="100%"
-              >
-                <Link
-                    to="/register"
-                    className="text-white flex items-center justify-center gap-2 hover:text-white shadow-none hover:shadow-none"
-                  >
-                  Начать бесплатно
-
-                  <ArrowRight
-                    size={20}
-                    className="transition-transform duration-100"
-                  />
-                </Link>
-              </InteractiveButton>
-
-            </motion.div>
-          </div>
-        </section>
 
         {/* Features Grid */}
         <section className="py-20 md:py-28">

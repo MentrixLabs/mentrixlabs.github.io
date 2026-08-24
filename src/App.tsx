@@ -77,6 +77,7 @@ const App: React.FC = () => {
   // ✅ Звук нажатия на кнопки (перенесён в useEffect)
   useEffect(() => {
     const audio = new Audio('/sounds/buttonsound.mp3');
+    audio.volume = 0.1
     audio.load();
 
     const handleClick = (e: MouseEvent) => {
