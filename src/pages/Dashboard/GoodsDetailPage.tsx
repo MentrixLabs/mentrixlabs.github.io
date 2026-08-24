@@ -8,7 +8,9 @@ import { generateSeo, getSeoHistory } from '@/api/seo';
 import { generateInfographics, getInfographicsByGoodsId, enhanceInfographics } from '@/api/infographics';
 import { Alert, Button, Card, CardContent } from '@/components/ui';
 import { reparseGoods } from '@/api/goods';
-import {
+import { canGenerateInfographics, canAddGoods, canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import { useUserStatus } from '@/hooks/useUserStatus';import {
   ArrowLeft,
   Package,
   FileText,
@@ -28,7 +30,6 @@ import {
   DollarSign,
   RefreshCw,
 } from 'lucide-react';
-import { getErrorMessage } from '@/utils/getErrorMessage';
 
 type TabType = 'info' | 'seo' | 'infographics' | 'reports';
 
@@ -179,6 +180,18 @@ const SeoTab: React.FC<{ goodsItem: GoodsItem }> = ({ goodsItem }) => {
   }, [goodsId]);
 
   const handleGenerate = async () => {
+    const { status, loading: statusLoading, error: statusError } = useUserStatus();  
+    const [error, setError] = useState<string | null>(null);
+    if (!status) {
+      setError('Не удалось проверить лимиты. Попробуйте позже.');
+      return;
+    }
+    // Проверка лимита с помощью утилиты
+    if (!canGenerateSeo(status)) {
+      setError(getPlanLimitMessage(status, 'generate_seo'));
+      setError(getErrorMessage(status, 'Ваш план не позволяет создать SEO больше, чем есть сейчас'));
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -317,7 +330,19 @@ const InfographicsTab: React.FC<{ goodsItem: GoodsItem; onUpdate?: () => void }>
   }, [goodsId]);
 
   // Генерация новых изображений (Kandinsky)
-  const handleGenerate = async (count = 4) => {
+  const handleGenerate = async (count = 1) => {
+    const { status, loading: statusLoading, error: statusError } = useUserStatus();  
+    const [error, setError] = useState<string | null>(null);
+    if (!status) {
+      setError('Не удалось проверить лимиты. Попробуйте позже.');
+      return;
+    }
+    // Проверка лимита с помощью утилиты
+    if (!canGenerateSeo(status)) {
+      setError(getPlanLimitMessage(status, 'generate_seo'));
+      setError(getErrorMessage(status, 'Ваш план не позволяет создать SEO больше, чем есть сейчас'));
+      return;
+    }
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -338,12 +363,12 @@ const InfographicsTab: React.FC<{ goodsItem: GoodsItem; onUpdate?: () => void }>
   };
 
   // Улучшение (коллаж + текст)
-  const handleEnhance = async () => {
+  const handleEnhance = async (count = 1) => {
     setLoading(true);
     setError(null);
     setSuccess(null);
     try {
-      await enhanceInfographics(goodsId);
+      await enhanceInfographics({ goods_id: Number(goodsId), count });
       // Обновляем сохранённые
       const updated = await getInfographicsByGoodsId(goodsId);
       const all = [...(updated.generated_images || []), ...(updated.enhanced_images || [])];
@@ -368,11 +393,11 @@ const InfographicsTab: React.FC<{ goodsItem: GoodsItem; onUpdate?: () => void }>
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-4">
-        <Button onClick={() => handleGenerate(4)} isLoading={loading}>
+        <Button onClick={() => handleGenerate(1)} isLoading={loading}>
           {!loading && <Sparkles size={18} className="mr-2" aria-hidden="true" />}
           {loading ? 'Генерация...' : 'Сгенерировать'}
         </Button>
-        <Button variant="outline" onClick={handleEnhance} isLoading={loading}>
+        <Button variant="outline" onClick={() => handleEnhance(1)} isLoading={loading}>
           {!loading && <Wand2 size={18} className="mr-2" aria-hidden="true" />}
           Улучшить
         </Button>

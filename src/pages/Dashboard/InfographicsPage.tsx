@@ -80,10 +80,6 @@ const InfographicsPage: React.FC = () => {
 
   // Генерация новых изображений (вместо search)
   const handleGenerate = useCallback(async () => {
-    if (!selectedGoodsId) {
-      setError('Выберите товар');
-      return;
-    }
 
     const { status, loading: statusLoading, error: statusError } = useUserStatus();
       
@@ -94,6 +90,11 @@ const InfographicsPage: React.FC = () => {
     // Проверка лимита с помощью утилиты
     if (!canGenerateInfographics(status)) {
       setError(getPlanLimitMessage(status, 'generate_infographics'));
+      setError(getErrorMessage(status, 'Ваш план не позволяет создать инфографики больше, чем есть сейчас'));
+      return;
+    }
+    if (!selectedGoodsId) {
+      setError('Выберите товар');
       return;
     }
     setLoading(true);
@@ -130,7 +131,10 @@ const InfographicsPage: React.FC = () => {
     setError(null);
     setSuccess(null);
     try {
-      await enhanceInfographics(selectedGoodsId);
+      await enhanceInfographics({
+        goods_id: Number(selectedGoodsId),
+        count: imageCount,
+      });
       await loadSavedImages(selectedGoodsId);
       setSuccess('Изображения улучшены (коллаж + текст)');
     } catch (err) {

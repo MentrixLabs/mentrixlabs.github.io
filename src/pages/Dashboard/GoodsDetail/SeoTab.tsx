@@ -4,7 +4,9 @@ import { generateSeo, getSeoHistory } from '@/api/seo';
 import type { GoodsItem, SeoGenerationResponse, SeoHistoryResponse } from '@/api/types';
 import { Alert, Badge, Button } from '@/components/ui';
 import { Loader2, Save, Sparkles, CheckCircle } from 'lucide-react';
+import { canGenerateInfographics, canAddGoods, canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { useUserStatus } from '@/hooks/useUserStatus';
 
 interface SeoTabProps {
   goodsItem: GoodsItem;
@@ -51,6 +53,19 @@ const SeoTab: React.FC<SeoTabProps> = ({ goodsItem }) => {
 
   // Генерация SEO
   const handleGenerateSeo = useCallback(async () => {
+    const { status, loading: statusLoading, error: statusError } = useUserStatus();
+          
+    const [error, setError] = useState<string | null>(null);
+    if (!status) {
+      setError('Не удалось проверить лимиты. Попробуйте позже.');
+      return;
+    }
+    // Проверка лимита с помощью утилиты
+    if (!canGenerateSeo(status)) {
+      setError(getPlanLimitMessage(status, 'generate_seo'));
+      setError(getErrorMessage(status, 'Ваш план не позволяет сделать больше SEO'));
+      return;
+    }
     setSeoLoading(true);
     setSeoError(null);
     setSuccess(null);

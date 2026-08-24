@@ -22,9 +22,10 @@ export const generateInfographics = async (data: InfographicsRequest): Promise<I
   return response.data;
 };
 
-// Улучшение инфографики (коллаж + текст)
-export const enhanceInfographics = async (goods_id: string): Promise<{ enhanced: string[] }> => {
-  const response = await client.post(`/infographics/enhance?goods_id=${goods_id}`);
+// Улучшение инфографики (коллаж + текст) – исправлен URL и тип данных
+export const enhanceInfographics = async (data: InfographicsRequest): Promise<{ enhanced: string[] }> => {
+  // Исправлена опечатка в URL (убрана лишняя кавычка)
+  const response = await client.post<{ enhanced: string[] }>('/infographics/enhance', data);
   return response.data;
 };
 

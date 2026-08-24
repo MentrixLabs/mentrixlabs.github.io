@@ -2,6 +2,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useGoods } from '@/hooks/useGoods';
+import { canGenerateInfographics, canAddGoods, canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import { useUserStatus } from '@/hooks/useUserStatus';
 import {
   getReports,
   generateReport,
@@ -38,7 +41,6 @@ import {
   X,
   Eye,
 } from 'lucide-react';
-import { getErrorMessage } from '@/utils/getErrorMessage';
 
 const ReportsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -103,11 +105,22 @@ const ReportsPage: React.FC = () => {
 
   // --- Генерация отчёта с предварительным обновлением остатков ---
   const handleGenerateReport = useCallback(async () => {
+    //const { status, loading: statusLoading, error: statusError } = useUserStatus();
+    //  
+    //if (!status) {
+    //  setError('Не удалось проверить лимиты. Попробуйте позже.');
+    //  return;
+    //}
+
+    //if (!canGenerateInfographics(status)){
+    //  setError(getErrorMessage(status, 'Ваш план не позволяет создать инфографики больше, чем есть сейчас'));
+    //}
+
     if (!selectedGoodsId) {
       setError('Выберите товар для генерации отчета');
       return;
     }
-
+        
     // Валидация и парсинг остатков (если поле не пусто)
     let stockEntries: { record_date: string; fbs_count: number }[] = [];
     if (stockInput.trim()) {

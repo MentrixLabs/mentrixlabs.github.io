@@ -4,6 +4,9 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useGoods } from '@/hooks/useGoods';
 import { generateSeo, getSeoHistory } from '@/api/seo';
 import type { SeoGenerationResponse, SeoHistoryResponse } from '@/api/types';
+import { canGenerateInfographics, canAddGoods, canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import { useUserStatus } from '@/hooks/useUserStatus';
 import {
   Alert,
   Badge,
@@ -14,9 +17,6 @@ import {
   Select,
 } from '@/components/ui';
 import { Sparkles, Loader2, Package } from 'lucide-react';
-import { getErrorMessage } from '@/utils/getErrorMessage';
-import { useUserStatus } from '@/hooks/useUserStatus';
-import { canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
 
 
 const SeoGenerationPage: React.FC = () => {
@@ -72,11 +72,6 @@ const SeoGenerationPage: React.FC = () => {
 
   // Генерация SEO
   const handleGenerate = useCallback(async () => {
-    if (!selectedGoodsId) {
-      setError('Выберите товар');
-      return;
-    }
-
     const { status, loading: statusLoading, error: statusError } = useUserStatus();
       
     if (!status) {
@@ -85,9 +80,15 @@ const SeoGenerationPage: React.FC = () => {
     }
     // Проверка лимита с помощью утилиты
     if (!canGenerateSeo(status)) {
-      setError(getPlanLimitMessage(status, 'generate_infographics'));
+      setError(getPlanLimitMessage(status, 'generate_seo'));
+      setError(getErrorMessage(status, 'Ваш план не позволяет создать SEO больше, чем есть сейчас'));
       return;
     }
+    if (!selectedGoodsId) {
+      setError('Выберите товар');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(null);
