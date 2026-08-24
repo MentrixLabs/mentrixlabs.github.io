@@ -117,15 +117,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
               Начните бесплатно, а затем масштабируйтесь по мере роста вашего бизнеса.
               Все планы включают базовый набор функций.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Карточки */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="sr-only">Тарифные планы</h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {displayPlans.map((plan, index) => (
               <Card
                 key={index}
@@ -188,6 +180,15 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
               </Card>
             ))}
           </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Карточки */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="sr-only">Тарифные планы</h2>
+          
         </div>
       </section>
 
