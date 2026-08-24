@@ -8,10 +8,9 @@ import { getErrorMessage } from '@/utils/getErrorMessage';
 import { useUserStatus } from '@/hooks/useUserStatus';
 
 const GoodsCreatePage: React.FC = () => {
+  const { status, loading: statusLoading, error: statusError } = useUserStatus();  
   const navigate = useNavigate();
   const { addGoods, loading: goodsLoading } = useGoods();
-
-  const { status, loading: statusLoading, error: statusError } = useUserStatus();
   
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +18,6 @@ const GoodsCreatePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    const { status, loading: statusLoading, error: statusError } = useUserStatus();
           
     const [error, setError] = useState<string | null>(null);
     if (!status) {

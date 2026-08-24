@@ -10,7 +10,8 @@ import { Alert, Button, Card, CardContent } from '@/components/ui';
 import { reparseGoods } from '@/api/goods';
 import { canGenerateInfographics, canAddGoods, canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
 import { getErrorMessage } from '@/utils/getErrorMessage';
-import { useUserStatus } from '@/hooks/useUserStatus';import {
+import { useUserStatus } from '@/hooks/useUserStatus';
+import {
   ArrowLeft,
   Package,
   FileText,
@@ -157,6 +158,7 @@ const InfoTab: React.FC<{ goodsItem: GoodsItem }> = ({ goodsItem }) => {
 
 // ---- Вкладка "SEO" ----
 const SeoTab: React.FC<{ goodsItem: GoodsItem }> = ({ goodsItem }) => {
+  const { status, loading: statusLoading, error: statusError } = useUserStatus();  
   const goodsId = goodsItem.id;
   const [seoHistory, setSeoHistory] = useState<SeoHistoryResponse | null>(null);
   const [generatedSeo, setGeneratedSeo] = useState<SeoDataResponse | null>(null);
@@ -180,7 +182,6 @@ const SeoTab: React.FC<{ goodsItem: GoodsItem }> = ({ goodsItem }) => {
   }, [goodsId]);
 
   const handleGenerate = async () => {
-    const { status, loading: statusLoading, error: statusError } = useUserStatus();  
     const [error, setError] = useState<string | null>(null);
     if (!status) {
       setError('Не удалось проверить лимиты. Попробуйте позже.');
@@ -305,6 +306,7 @@ const InfographicsTab: React.FC<{ goodsItem: GoodsItem; onUpdate?: () => void }>
   goodsItem,
   onUpdate,
 }) => {
+  const { status, loading: statusLoading, error: statusError } = useUserStatus();  
   const goodsId = goodsItem.id; // string
 
   const [savedImages, setSavedImages] = useState<string[]>([]);
@@ -331,16 +333,15 @@ const InfographicsTab: React.FC<{ goodsItem: GoodsItem; onUpdate?: () => void }>
 
   // Генерация новых изображений (Kandinsky)
   const handleGenerate = async (count = 1) => {
-    const { status, loading: statusLoading, error: statusError } = useUserStatus();  
     const [error, setError] = useState<string | null>(null);
     if (!status) {
       setError('Не удалось проверить лимиты. Попробуйте позже.');
       return;
     }
     // Проверка лимита с помощью утилиты
-    if (!canGenerateSeo(status)) {
-      setError(getPlanLimitMessage(status, 'generate_seo'));
-      setError(getErrorMessage(status, 'Ваш план не позволяет создать SEO больше, чем есть сейчас'));
+    if (!canGenerateInfographics(status)) {
+      setError(getPlanLimitMessage(status, 'generate_infographics'));
+      setError(getErrorMessage(status, 'Ваш план не позволяет создать инфографики больше, чем есть сейчас'));
       return;
     }
     setLoading(true);

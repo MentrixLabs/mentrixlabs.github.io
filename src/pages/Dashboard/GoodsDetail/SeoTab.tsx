@@ -13,6 +13,7 @@ interface SeoTabProps {
 }
 
 const SeoTab: React.FC<SeoTabProps> = ({ goodsItem }) => {
+  const { status, loading: statusLoading, error: statusError } = useUserStatus();  
   const goodsId = goodsItem.id;
 
   const [seoHistory, setSeoHistory] = useState<SeoHistoryResponse | null>(null);
@@ -53,7 +54,6 @@ const SeoTab: React.FC<SeoTabProps> = ({ goodsItem }) => {
 
   // Генерация SEO
   const handleGenerateSeo = useCallback(async () => {
-    const { status, loading: statusLoading, error: statusError } = useUserStatus();
           
     const [error, setError] = useState<string | null>(null);
     if (!status) {

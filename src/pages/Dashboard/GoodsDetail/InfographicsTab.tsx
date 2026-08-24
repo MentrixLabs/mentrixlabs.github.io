@@ -16,6 +16,7 @@ interface InfographicsTabProps {
 }
 
 const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
+  const { status, loading: statusLoading, error: statusError } = useUserStatus();  
   const goodsId = goodsItem.id; // string
 
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
@@ -41,7 +42,6 @@ const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
 
   // Генерация новых изображений
   const handleGenerate = async (count = 4) => {
-    const { status, loading: statusLoading, error: statusError } = useUserStatus();
           
     const [error, setError] = useState<string | null>(null);
     if (!status) {
@@ -71,7 +71,6 @@ const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
 
   // Улучшение (коллаж + текст)
   const handleEnhance = async (count = 4) => {
-    const { status, loading: statusLoading, error: statusError } = useUserStatus();
           
     const [error, setError] = useState<string | null>(null);
     if (!status) {
@@ -84,7 +83,7 @@ const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
       setError(getErrorMessage(status, 'Ваш план не позволяет улучшить больше инфографики'));
       return;
     }
-    
+
     setLoading(true);
     setError(null);
     setSuccess(null);

@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 
 const ReportsPage: React.FC = () => {
+  //const { status, loading: statusLoading, error: statusError } = useUserStatus();  
   const [searchParams] = useSearchParams();
   const goodsIdFromUrl = searchParams.get('goods_id');
 
@@ -105,7 +106,6 @@ const ReportsPage: React.FC = () => {
 
   // --- Генерация отчёта с предварительным обновлением остатков ---
   const handleGenerateReport = useCallback(async () => {
-    //const { status, loading: statusLoading, error: statusError } = useUserStatus();
     //  
     //if (!status) {
     //  setError('Не удалось проверить лимиты. Попробуйте позже.');
