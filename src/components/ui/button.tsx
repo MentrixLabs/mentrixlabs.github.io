@@ -524,6 +524,8 @@ const InteractiveButton = forwardRef<
       className: wrapperClassName,
 
       style: buttonStyle,
+      
+      role: "button",
 
       ...(isDisabled && {
         "aria-disabled": true,

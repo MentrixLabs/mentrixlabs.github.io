@@ -84,10 +84,6 @@ const App: React.FC = () => {
       const button = target.closest('button') || 
                      (target.getAttribute('role') === 'button' && target) || 
                      target.closest('[role="button"]')
-                     ||
-                     target.closest('InteractiveButton') || 
-                     (target.getAttribute('role') === 'InteractiveButton' && target) || 
-                     target.closest('[role="InteractiveButton"]');
       if (button) {
         audio.currentTime = 0;
         audio.play().catch(() => {});
