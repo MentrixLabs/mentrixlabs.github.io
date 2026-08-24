@@ -7,16 +7,13 @@ import {
 import { Alert, Button, Card, CardContent, SelectableImageGrid } from '@/components/ui';
 import { Loader2, Sparkles, Wand2 } from 'lucide-react';
 import type { GoodsItem } from '@/api/types';
-import { canGenerateInfographics, canAddGoods, canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
 import { getErrorMessage } from '@/utils/getErrorMessage';
-import { useUserStatus } from '@/hooks/useUserStatus';
 
 interface InfographicsTabProps {
   goodsItem: GoodsItem;
 }
 
-const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
-  const { status, loading: statusLoading, error: statusError } = useUserStatus();  
+const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => { 
   const goodsId = goodsItem.id; // string
 
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
@@ -42,17 +39,6 @@ const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
 
   // Генерация новых изображений
   const handleGenerate = async (count = 4) => {
-    if (!status) {
-      setError('Не удалось проверить лимиты. Попробуйте позже.');
-      return;
-    }
-    // Проверка лимита с помощью утилиты
-    if (!canGenerateInfographics(status)) {
-      setError(getPlanLimitMessage(status, 'generate_infographics'));
-      setError(getErrorMessage(status, 'Ваш план не позволяет сделать больше инфографики'));
-      return;
-    }
-
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -69,17 +55,6 @@ const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
 
   // Улучшение (коллаж + текст)
   const handleEnhance = async (count = 4) => {
-    if (!status) {
-      setError('Не удалось проверить лимиты. Попробуйте позже.');
-      return;
-    }
-    // Проверка лимита с помощью утилиты
-    if (!canGenerateInfographics(status)) {
-      setError(getPlanLimitMessage(status, 'generate_infographics'));
-      setError(getErrorMessage(status, 'Ваш план не позволяет улучшить больше инфографики'));
-      return;
-    }
-
     setLoading(true);
     setError(null);
     setSuccess(null);

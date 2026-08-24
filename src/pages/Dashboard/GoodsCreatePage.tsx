@@ -3,12 +3,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoods } from '@/hooks/useGoods';
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import { canGenerateInfographics, canAddGoods, canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
 import { getErrorMessage } from '@/utils/getErrorMessage';
-import { useUserStatus } from '@/hooks/useUserStatus';
 
 const GoodsCreatePage: React.FC = () => {
-  const { status, loading: statusLoading, error: statusError } = useUserStatus();  
   const navigate = useNavigate();
   const { addGoods, loading: goodsLoading } = useGoods();
   
@@ -18,17 +15,6 @@ const GoodsCreatePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-          
-    if (!status) {
-      setError('Не удалось проверить лимиты. Попробуйте позже.');
-      return;
-    }
-    // Проверка лимита с помощью утилиты
-    if (!canAddGoods(status)) {
-      setError(getPlanLimitMessage(status, 'add_goods'));
-      setError(getErrorMessage(status, 'Ваш план не позволяет добавить больше товаров, чем есть сейчас'));
-      return;
-    }
     e.preventDefault();
     setError(null);
     setSuccess(null);

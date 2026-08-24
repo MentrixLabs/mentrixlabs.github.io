@@ -24,14 +24,11 @@ import {
   Wand2,
 } from 'lucide-react';
 import { getErrorMessage } from '@/utils/getErrorMessage';
-import { useUserStatus } from '@/hooks/useUserStatus';
-import { canGenerateInfographics, getPlanLimitMessage } from '@/utils/planHelpers';
 
 const placeholderImage =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23e5e7eb'/%3E%3Ctext x='50' y='50' font-size='12' fill='%239ca3af' text-anchor='middle' dy='.3em'%3EНет фото%3C/text%3E%3C/svg%3E";
 
 const InfographicsPage: React.FC = () => {
-  const { status, loading: statusLoading, error: statusError } = useUserStatus();  
   const [searchParams] = useSearchParams();
   const goodsIdFromUrl = searchParams.get('goods_id');
 
@@ -81,17 +78,6 @@ const InfographicsPage: React.FC = () => {
 
   // Генерация новых изображений (вместо search)
   const handleGenerate = useCallback(async () => {
-      
-    if (!status) {
-      setError('Не удалось проверить лимиты. Попробуйте позже.');
-      return;
-    }
-    // Проверка лимита с помощью утилиты
-    if (!canGenerateInfographics(status)) {
-      setError(getPlanLimitMessage(status, 'generate_infographics'));
-      setError(getErrorMessage(status, 'Ваш план не позволяет создать инфографики больше, чем есть сейчас'));
-      return;
-    }
     if (!selectedGoodsId) {
       setError('Выберите товар');
       return;

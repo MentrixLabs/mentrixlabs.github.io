@@ -4,9 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useGoods } from '@/hooks/useGoods';
 import { generateSeo, getSeoHistory } from '@/api/seo';
 import type { SeoGenerationResponse, SeoHistoryResponse } from '@/api/types';
-import { canGenerateInfographics, canAddGoods, canGenerateSeo, getPlanLimitMessage } from '@/utils/planHelpers';
 import { getErrorMessage } from '@/utils/getErrorMessage';
-import { useUserStatus } from '@/hooks/useUserStatus';
 import {
   Alert,
   Badge,
@@ -72,18 +70,6 @@ const SeoGenerationPage: React.FC = () => {
 
   // Генерация SEO
   const handleGenerate = useCallback(async () => {
-    const { status, loading: statusLoading, error: statusError } = useUserStatus();
-      
-    if (!status) {
-      setError('Не удалось проверить лимиты. Попробуйте позже.');
-      return;
-    }
-    // Проверка лимита с помощью утилиты
-    if (!canGenerateSeo(status)) {
-      setError(getPlanLimitMessage(status, 'generate_seo'));
-      setError(getErrorMessage(status, 'Ваш план не позволяет создать SEO больше, чем есть сейчас'));
-      return;
-    }
     if (!selectedGoodsId) {
       setError('Выберите товар');
       return;
