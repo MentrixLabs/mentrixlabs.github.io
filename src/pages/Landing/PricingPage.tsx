@@ -125,7 +125,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="sr-only">Тарифные планы</h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto justify-items-center">
+          <div className="flex flex-col md:flex-row flex-wrap justify-center gap-8 max-w-6xl mx-auto">
             {displayPlans.map((plan, index) => (
               <Card
                 key={index}
