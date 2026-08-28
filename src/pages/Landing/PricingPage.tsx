@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, X, ChevronDown, ChevronUp, Zap } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { createPayment } from '@/api/payment';
+import { createPayment, ReceiptItem } from '@/api/payment';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import {
@@ -20,6 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Input,
 } from '@/components/ui';
 import LandingHeader from '@/components/landing/LandingHeader';
 import LandingFooter from '@/components/landing/LandingFooter';
@@ -38,7 +39,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
   };
 
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  
 
   const [searchParams] = useSearchParams();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
@@ -48,17 +50,138 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
   // Определяем, какие планы показывать: все, кроме free, если dashboardMode
   const displayPlans = dashboardMode ? plans.filter(p => p.id !== 'free') : plans;
 
-  // Автоматический запуск оплаты, если мы в дашборд-режиме и есть параметр plan
+  // --- Состояния для модалки ---
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [receiptItems, setReceiptItems] = useState<ReceiptItem[]>([]);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
+
+  // При открытии модалки подставляем email из профиля, если есть
+  useEffect(() => {
+    if (modalOpen && user?.email) {
+      setEmail(user.email);
+    }
+  }, [modalOpen, user]);
+
+  // --- Вспомогательная функция для генерации позиций чека ---
+  const generateReceiptItems = (planId: string, total: number): ReceiptItem[] => {
+    // Сопоставление planId -> список включённых опций (из конфига)
+    const featureLabelsMap: Record<string, string[]> = {
+      starter: [
+        'До 50 товаров',
+        'Генерация SEO (расширенная, до 50 товаров в день)',
+        'Создание инфографики (до 20 изображений в день)',
+        'Полные отчёты в PDF',
+        'Поддержка 24/7 по телефону',
+      ],
+      business: [
+        'Неограниченно товаров',
+        'Генерация SEO (премиум, больше 50 товаров в день)',
+        'Создание инфографики (до 50 изображений в день)',
+        'Полные отчёты в PDF и Excel',
+        'Поддержка 24/7',
+        'API-доступ',
+        'Приоритетная поддержка',
+      ],
+    };
+
+    const features = featureLabelsMap[planId] || [];
+    if (features.length === 0) return [];
+
+    const pricePerFeature = total / features.length;
+    // Округляем до 2 знаков для копеек
+    const roundedPrice = Math.round(pricePerFeature * 100) / 100;
+
+    return features.map((label) => ({
+      description: label,
+      quantity: 1,
+      amount: roundedPrice,
+      vat_code: 1,
+    }));
+  };
+
+  // --- Обработчик клика по кнопке плана ---
+  const handlePlanClick = (plan: typeof plans[0]) => {
+    if (dashboardMode && plan.id === 'free') {
+      navigate('/dashboard');
+      return;
+    }
+    if (plan.id === 'free') {
+      // Бесплатный – сразу переходим
+      if (isAuthenticated) {
+        navigate('/dashboard');
+      } else {
+        navigate('/register?plan=free');
+      }
+      return;
+    }
+
+    // Для платных – открываем модалку
+    const amount = amounts[plan.id];
+    if (!amount) {
+      setError('Неизвестный тариф');
+      return;
+    }
+    const items = generateReceiptItems(plan.id, amount);
+    setSelectedPlanId(plan.id);
+    setTotalAmount(amount);
+    setReceiptItems(items);
+    setEmail(user?.email || '');
+    setModalError(null);
+    setModalOpen(true);
+  };
+
+  // --- Подтверждение в модалке ---
+  const handleConfirmPayment = async () => {
+    if (!selectedPlanId) return;
+    if (!email) {
+      setModalError('Введите email для отправки чека');
+      return;
+    }
+    setModalLoading(true);
+    setModalError(null);
+    try {
+      const payment = await createPayment({
+        amount: totalAmount,
+        description: `Оплата тарифа ${selectedPlanId}`,
+        items: receiptItems,
+        email: email,
+      });
+      // Перенаправляем на страницу оплаты
+      window.location.href = payment.confirmation_url;
+    } catch (err) {
+      setModalError(getErrorMessage(err, 'Не удалось создать платёж'));
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // --- Автозапуск для dashboardMode (адаптирован под модалку) ---
   useEffect(() => {
     const plan = searchParams.get('plan');
     if (dashboardMode && plan && isAuthenticated && !paymentInitiated) {
       const validPlans = ['starter', 'business'];
       if (validPlans.includes(plan) && plan !== 'free') {
         setPaymentInitiated(true);
-        handleSelectPlan(plan);
+        // Открываем модалку вместо прямого вызова
+        const amount = amounts[plan];
+        if (amount) {
+          const items = generateReceiptItems(plan, amount);
+          setSelectedPlanId(plan);
+          setTotalAmount(amount);
+          setReceiptItems(items);
+          setEmail(user?.email || '');
+          setModalError(null);
+          setModalOpen(true);
+        }
+      } else if (plan === 'free') {
+        navigate('/dashboard');
       }
     }
-  }, [searchParams, dashboardMode, isAuthenticated, paymentInitiated]);
+  }, [searchParams, dashboardMode, isAuthenticated, paymentInitiated, user]);
 
   const handleSelectPlan = async (plan: string) => {
     if (plan === 'free') {
@@ -85,19 +208,59 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
       setLoadingPlan(null);
     }
   };
-
-  // Обработчик клика по кнопке плана
-  const handlePlanClick = (plan: typeof plans[0]) => {
-    if (dashboardMode && plan.id === 'free') {
-      navigate('/dashboard');
-      return;
-    }
-    if (isAuthenticated) {
-      navigate(`/dashboard/pricing?plan=${plan.id}`);
-    } else {
-      navigate(`/register?plan=${plan.id}`);
-    }
+  
+  const PaymentModal = () => {
+    if (!modalOpen) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+          <h2 className="text-xl font-bold mb-4">
+            Оплата тарифа {selectedPlanId === 'starter' ? 'Старт' : 'Бизнес'}
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-1">
+                Email для чека
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="example@mail.ru"
+                required
+              />
+            </div>
+            <div>
+              <p className="text-sm font-medium mb-2">Позиции чека:</p>
+              <ul className="space-y-1 text-sm">
+                {receiptItems.map((item, idx) => (
+                  <li key={idx} className="flex justify-between border-b border-gray-100 py-1">
+                    <span>{item.description}</span>
+                    <span>{item.amount.toFixed(2)} ₽</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-2 flex justify-between font-semibold text-base">
+                <span>Итого:</span>
+                <span>{totalAmount.toFixed(2)} ₽</span>
+              </div>
+            </div>
+            {modalError && <Alert variant="error">{modalError}</Alert>}
+          </div>
+          <div className="mt-6 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setModalOpen(false)}>
+              Отмена
+            </Button>
+            <Button onClick={handleConfirmPayment} disabled={modalLoading}>
+              {modalLoading ? 'Обработка...' : 'Оплатить'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   };
+
 
   // Внутри компонента PricingPage, перед return:
   const renderFullPage = () => (
@@ -359,8 +522,13 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
       <LandingHeader />
       {renderFullPage()}
       <LandingFooter />
+      {PaymentModal()}  {/* модалка */}
     </div>
   );
+};
+const amounts: Record<string, number> = {
+  starter: 12990,
+  business: 52990,
 };
 
 // ===== DATA =====
