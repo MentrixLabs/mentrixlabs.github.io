@@ -27,6 +27,11 @@ import LandingFooter from '@/components/landing/LandingFooter';
 
 import { useAuthStore } from '@/store/authStore';
 
+const amounts: Record<string, number> = {
+  starter: 12990,
+  business: 52990,
+};
+
 interface PricingPageProps {
   dashboardMode?: boolean;
 }
@@ -497,7 +502,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
   );
 
   // Рендеринг: если dashboardMode – без хедера/футера, иначе с хедером/футером
-  if (dashboardMode) {
+    if (dashboardMode) {
     return (
       <div className="space-y-8">
         <div className="flex items-center justify-between">
@@ -513,6 +518,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
             Ваш текущий план: <strong>Бесплатный</strong> (заглушка)
           </div>
         )}
+        <PaymentModal />
       </div>
     );
   }
@@ -526,11 +532,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ dashboardMode = false }) => {
     </div>
   );
 };
-const amounts: Record<string, number> = {
-  starter: 12990,
-  business: 52990,
-};
-
 // ===== DATA =====
 
 const plans = [
