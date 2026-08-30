@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useGoods } from '@/hooks/useGoods';
+import { sendMetricGoal } from '@/utils/metrics'
 import {
   generateInfographics,
   getInfographicsByGoodsId,
@@ -90,6 +91,7 @@ const InfographicsPage: React.FC = () => {
         goods_id: Number(selectedGoodsId),
         count: imageCount,
       });
+      sendMetricGoal('infographic_generation')
       setFoundImages(result.images || []);
       setSelectedImages([]);
       // После генерации обновляем сохранённые (они автоматически сохранились на бэкенде)

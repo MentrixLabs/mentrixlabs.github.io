@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGoods } from '@/hooks/useGoods';
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { sendMetricGoal } from '@/utils/metrics'
 
 const GoodsCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,12 +39,16 @@ const GoodsCreatePage: React.FC = () => {
         description: '',
         url: url.trim(),
       });
+      if (!localStorage.getItem('first_product_action_sent')) {
+        sendMetricGoal('first_product_action');
+        localStorage.setItem('first_product_action_sent', 'true');
+      }
       setSuccess('Товар успешно создан!');
       setTimeout(() => {
         navigate('/goods');
       }, 100000);
     } catch (err: any) {
-      setError(err.message || 'Ошибка создания товара');
+      setError(getErrorMessage(err, 'Ошибка создания товара'));
     } finally {
       setIsSubmitting(false);
     }

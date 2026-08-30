@@ -16,6 +16,7 @@ import {
 } from '@/components/ui';
 import { Sparkles, Loader2, Package } from 'lucide-react';
 
+import { sendMetricGoal } from '@/utils/metrics'
 
 const SeoGenerationPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -81,6 +82,7 @@ const SeoGenerationPage: React.FC = () => {
     try {
       const result = await generateSeo({ goods_id: selectedGoodsId });
       setGeneratedSeo(result);
+      sendMetricGoal('seo_generation')
       // Обновляем историю
       const history = await getSeoHistory(selectedGoodsId);
       setSeoHistory(history);

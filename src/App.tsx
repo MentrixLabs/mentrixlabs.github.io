@@ -31,6 +31,10 @@ import SettingsPage from '@/pages/Dashboard/SettingsPage';
 import GoodsCreatePage from '@/pages/Dashboard/GoodsCreatePage';
 import ReportViewPage from '@/pages/Dashboard/ReportViewPage';
 
+import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
+
+
+
 // Компонент для защищённых маршрутов
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   
@@ -148,6 +152,7 @@ const App: React.FC = () => {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/reports/view/:id" element={<ReportViewPage />} />
           <Route path="/dashboard/pricing" element={<PricingPage dashboardMode />} />
+          <Route path="/payment-success" element={<PaymentSuccessPage />} />
 
           {/* Перенаправление с корня после входа на дашборд */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

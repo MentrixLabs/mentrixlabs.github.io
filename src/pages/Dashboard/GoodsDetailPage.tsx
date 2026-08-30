@@ -9,6 +9,7 @@ import { generateInfographics, getInfographicsByGoodsId, enhanceInfographics } f
 import { Alert, Button, Card, CardContent } from '@/components/ui';
 import { reparseGoods } from '@/api/goods';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { sendMetricGoal } from '@/utils/metrics'
 import {
   ArrowLeft,
   Package,
@@ -184,6 +185,7 @@ const SeoTab: React.FC<{ goodsItem: GoodsItem }> = ({ goodsItem }) => {
     try {
       const result = await generateSeo({ goods_id: goodsId });
       setGeneratedSeo(result);
+      sendMetricGoal('seo_generation')
       const history = await getSeoHistory(goodsId);
       setSeoHistory(history);
     } catch (err) {
@@ -324,6 +326,7 @@ const InfographicsTab: React.FC<{ goodsItem: GoodsItem; onUpdate?: () => void }>
     try {
       const result = await generateInfographics({ goods_id: Number(goodsId), count });
       setGeneratedImages(result.images);
+      sendMetricGoal('infographic_generation')
       // После генерации обновляем сохранённые (они уже сохранились на бэкенде)
       const updated = await getInfographicsByGoodsId(goodsId);
       const all = [...(updated.generated_images || []), ...(updated.enhanced_images || [])];

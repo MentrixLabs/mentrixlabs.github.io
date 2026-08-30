@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Loader2 } from 'lucide-react';
 import { Alert, Button, FormField, Input } from '@/components/ui';
 import { createPayment } from '@/api/payment';
+import { sendMetricGoal } from '@/utils/metrics'
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ const RegisterPage: React.FC = () => {
     try {
       // Регистрация
       await register(username, email, password);
+      sendMetricGoal('registration_success');
 
       // Проверка плана для оплаты
       const plan = searchParams.get('plan');

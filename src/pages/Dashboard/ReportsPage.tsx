@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useGoods } from '@/hooks/useGoods';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { sendMetricGoal } from '@/utils/metrics'
 import {
   getReports,
   generateReport,
@@ -142,6 +143,7 @@ const ReportsPage: React.FC = () => {
 
       // 2. Генерируем отчёт
       const newReport = await generateReport(selectedGoodsId);
+      sendMetricGoal('report_created')
       setReports((prev) => [newReport, ...prev]);
       setSuccess('Отчет успешно сгенерирован');
       // Очищаем поле после успешной генерации (опционально)
