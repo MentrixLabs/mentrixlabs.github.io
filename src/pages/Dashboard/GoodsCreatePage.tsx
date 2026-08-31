@@ -40,10 +40,10 @@ const GoodsCreatePage: React.FC = () => {
         url: url.trim(),
       });
       if (!localStorage.getItem('first_product_action_sent')) {
-        sendMetricGoal('first_product_action');
         localStorage.setItem('first_product_action_sent', 'true');
       }
       setSuccess('Товар успешно создан!');
+      sendMetricGoal('first_product_action');
       setTimeout(() => {
         navigate('/goods');
       }, 100000);

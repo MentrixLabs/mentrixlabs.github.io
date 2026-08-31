@@ -8,6 +8,7 @@ import { Alert, Button, Card, CardContent, SelectableImageGrid } from '@/compone
 import { Loader2, Sparkles, Wand2 } from 'lucide-react';
 import type { GoodsItem } from '@/api/types';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { sendMetricGoal } from '@/utils/metrics'
 
 interface InfographicsTabProps {
   goodsItem: GoodsItem;
@@ -45,6 +46,7 @@ const InfographicsTab: React.FC<InfographicsTabProps> = ({ goodsItem }) => {
     try {
       const result = await generateInfographics({ goods_id: Number(goodsId), count });
       setGeneratedImages(result.images);
+      sendMetricGoal('infographic_generation')
       setSuccess(`Сгенерировано ${result.images.length} изображений`);
     } catch (err) {
       setError(getErrorMessage(err, 'Ошибка генерации инфографики'));

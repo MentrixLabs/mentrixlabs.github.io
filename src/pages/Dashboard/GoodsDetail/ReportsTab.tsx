@@ -7,6 +7,7 @@ import type { GoodsItem } from '@/api/types';
 import { Alert, Badge, Button } from '@/components/ui';
 import { BarChart3, Loader2 } from 'lucide-react';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { sendMetricGoal } from '@/utils/metrics'
 
 interface ReportsTabProps {
   goodsItem: GoodsItem;

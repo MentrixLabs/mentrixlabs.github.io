@@ -5,6 +5,7 @@ import type { GoodsItem, SeoGenerationResponse, SeoHistoryResponse } from '@/api
 import { Alert, Badge, Button } from '@/components/ui';
 import { Loader2, Save, Sparkles, CheckCircle } from 'lucide-react';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { sendMetricGoal } from '@/utils/metrics'
 
 interface SeoTabProps {
   goodsItem: GoodsItem;
@@ -58,6 +59,7 @@ const SeoTab: React.FC<SeoTabProps> = ({ goodsItem }) => {
     try {
       const result = await generateSeo({ goods_id: goodsId });
       setGeneratedSeo(result);
+      sendMetricGoal('seo_generation');
       // Обновляем историю
       const history = await getSeoHistory(goodsId);
       setSeoHistory(history);
