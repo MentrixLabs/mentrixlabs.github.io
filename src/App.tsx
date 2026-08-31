@@ -1,6 +1,6 @@
 // src/App.tsx
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 
 // Макеты
@@ -34,6 +34,23 @@ import ReportViewPage from '@/pages/Dashboard/ReportViewPage';
 import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
 
 
+const RootRedirectHandler: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const redirectPath = sessionStorage.getItem('redirect-path');
+    if (redirectPath) {
+      sessionStorage.removeItem('redirect-path');
+      // Если текущий путь отличается от сохранённого, перенаправляем
+      if (redirectPath !== location.pathname + location.search) {
+        navigate(redirectPath, { replace: true });
+      }
+    }
+  }, [navigate, location]);
+
+  return null;
+};
 
 // Компонент для защищённых маршрутов
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -115,6 +132,7 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter basename="">
+      <RootRedirectHandler />
       <Routes>
         <Route path="/" element={<RootRoute />} />
 
