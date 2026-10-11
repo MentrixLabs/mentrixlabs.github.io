@@ -6,7 +6,7 @@ import axios, {
 } from 'axios';
 
 // Базовый URL бэкенда (берётся из переменных окружения)
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://mlstartupbackend-mentrixlabs.amvera.io';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://mlstrtpbackwarsh-mentrixlabs.waw0.amvera.tech';
 
 // Ключ для хранения токена в localStorage
 const TOKEN_KEY = 'access_token';
